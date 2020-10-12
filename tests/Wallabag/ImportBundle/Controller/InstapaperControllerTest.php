@@ -80,7 +80,7 @@ class InstapaperControllerTest extends WallabagCoreTestCase
         $crawler = $client->followRedirect();
 
         $this->assertGreaterThan(1, $body = $crawler->filter('body')->extract(['_text']));
-        $this->assertContains('flashes.import.notice.summary', $body[0]);
+        $this->assertStringContainsString('flashes.import.notice.summary', $body[0]);
 
         $this->assertNotEmpty($client->getContainer()->get('wallabag_core.redis.client')->lpop('wallabag.import.instapaper'));
 
@@ -108,35 +108,37 @@ class InstapaperControllerTest extends WallabagCoreTestCase
         $crawler = $client->followRedirect();
 
         $this->assertGreaterThan(1, $body = $crawler->filter('body')->extract(['_text']));
-        $this->assertContains('flashes.import.notice.summary', $body[0]);
+        $this->assertStringContainsString('flashes.import.notice.summary', $body[0]);
 
         $content = $client->getContainer()
             ->get('doctrine.orm.entity_manager')
             ->getRepository('WallabagCoreBundle:Entry')
             ->findByUrlAndUserId(
-                'http://www.liberation.fr/societe/2012/12/06/baumettes-un-tour-en-cellule_865551',
+                'https://www.liberation.fr/societe/2012/12/06/baumettes-un-tour-en-cellule_865551',
                 $this->getLoggedInUserId()
             );
 
-        $this->assertNotEmpty($content->getMimetype(), 'Mimetype for http://www.liberation.fr is ok');
-        $this->assertNotEmpty($content->getPreviewPicture(), 'Preview picture for http://www.liberation.fr is ok');
-        $this->assertNotEmpty($content->getLanguage(), 'Language for http://www.liberation.fr is ok');
+        $this->assertInstanceOf('Wallabag\CoreBundle\Entity\Entry', $content);
+
+        $this->assertNotEmpty($content->getMimetype(), 'Mimetype for https://www.liberation.fr is ok');
+        $this->assertNotEmpty($content->getPreviewPicture(), 'Preview picture for https://www.liberation.fr is ok');
+        $this->assertNotEmpty($content->getLanguage(), 'Language for https://www.liberation.fr is ok');
         $this->assertContains('foot', $content->getTags(), 'It includes the "foot" tag');
-        $this->assertSame(1, count($content->getTags()));
+        $this->assertCount(1, $content->getTags());
         $this->assertInstanceOf(\DateTime::class, $content->getCreatedAt());
 
         $content = $client->getContainer()
             ->get('doctrine.orm.entity_manager')
             ->getRepository('WallabagCoreBundle:Entry')
             ->findByUrlAndUserId(
-                'http://www.20minutes.fr/high-tech/2077615-20170531-dis-donc-donald-trump-quoi-exactement-covfefe',
+                'https://www.20minutes.fr/high-tech/2077615-20170531-quoi-exactement-tweet-covfefe-donald-trump-persiste-signe',
                 $this->getLoggedInUserId()
             );
 
         $this->assertContains('foot', $content->getTags());
         $this->assertContains('test_tag', $content->getTags());
 
-        $this->assertSame(2, count($content->getTags()));
+        $this->assertCount(2, $content->getTags());
     }
 
     public function testImportInstapaperWithFileAndMarkAllAsRead()
@@ -181,7 +183,7 @@ class InstapaperControllerTest extends WallabagCoreTestCase
         $this->assertTrue($content2->isArchived());
 
         $this->assertGreaterThan(1, $body = $crawler->filter('body')->extract(['_text']));
-        $this->assertContains('flashes.import.notice.summary', $body[0]);
+        $this->assertStringContainsString('flashes.import.notice.summary', $body[0]);
     }
 
     public function testImportInstapaperWithEmptyFile()
@@ -205,6 +207,6 @@ class InstapaperControllerTest extends WallabagCoreTestCase
         $crawler = $client->followRedirect();
 
         $this->assertGreaterThan(1, $body = $crawler->filter('body')->extract(['_text']));
-        $this->assertContains('flashes.import.notice.failed', $body[0]);
+        $this->assertStringContainsString('flashes.import.notice.failed', $body[0]);
     }
 }

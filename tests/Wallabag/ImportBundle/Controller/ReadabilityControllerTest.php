@@ -80,7 +80,7 @@ class ReadabilityControllerTest extends WallabagCoreTestCase
         $crawler = $client->followRedirect();
 
         $this->assertGreaterThan(1, $body = $crawler->filter('body')->extract(['_text']));
-        $this->assertContains('flashes.import.notice.summary', $body[0]);
+        $this->assertStringContainsString('flashes.import.notice.summary', $body[0]);
 
         $this->assertNotEmpty($client->getContainer()->get('wallabag_core.redis.client')->lpop('wallabag.import.readability'));
 
@@ -111,21 +111,21 @@ class ReadabilityControllerTest extends WallabagCoreTestCase
             ->get('doctrine.orm.entity_manager')
             ->getRepository('WallabagCoreBundle:Entry')
             ->findByUrlAndUserId(
-                'https://www.zataz.com/90-des-dossiers-medicaux-des-coreens-du-sud-vendus-a-des-entreprises-privees/',
+                'https://www.20minutes.fr/bordeaux/2120479-20170823-bordeaux-poche-chocolatine-association-traduit-etudiants-etrangers-mots-sud-ouest',
                 $this->getLoggedInUserId()
             );
 
         $this->assertGreaterThan(1, $body = $crawler->filter('body')->extract(['_text']));
-        $this->assertContains('flashes.import.notice.summary', $body[0]);
+        $this->assertStringContainsString('flashes.import.notice.summary', $body[0]);
 
         $this->assertInstanceOf('Wallabag\CoreBundle\Entity\Entry', $content);
-        $this->assertNotEmpty($content->getMimetype(), 'Mimetype for http://www.zataz.com is ok');
-        $this->assertNotEmpty($content->getPreviewPicture(), 'Preview picture for http://www.zataz.com is ok');
-        $this->assertNotEmpty($content->getLanguage(), 'Language for http://www.zataz.com is ok');
+        $this->assertNotEmpty($content->getMimetype(), 'Mimetype for https://www.20minutes.fr is ok');
+        $this->assertNotEmpty($content->getPreviewPicture(), 'Preview picture for https://www.20minutes.fr is ok');
+        $this->assertNotEmpty($content->getLanguage(), 'Language for https://www.20minutes.fr is ok');
 
         $tags = $content->getTags();
         $this->assertContains('foot', $tags, 'It includes the "foot" tag');
-        $this->assertSame(1, count($tags));
+        $this->assertCount(1, $tags);
 
         $this->assertInstanceOf(\DateTime::class, $content->getCreatedAt());
         $this->assertSame('2016-09-08', $content->getCreatedAt()->format('Y-m-d'));
@@ -175,7 +175,7 @@ class ReadabilityControllerTest extends WallabagCoreTestCase
         $this->assertTrue($content2->isArchived());
 
         $this->assertGreaterThan(1, $body = $crawler->filter('body')->extract(['_text']));
-        $this->assertContains('flashes.import.notice.summary', $body[0]);
+        $this->assertStringContainsString('flashes.import.notice.summary', $body[0]);
     }
 
     public function testImportReadabilityWithEmptyFile()
@@ -199,6 +199,6 @@ class ReadabilityControllerTest extends WallabagCoreTestCase
         $crawler = $client->followRedirect();
 
         $this->assertGreaterThan(1, $body = $crawler->filter('body')->extract(['_text']));
-        $this->assertContains('flashes.import.notice.failed', $body[0]);
+        $this->assertStringContainsString('flashes.import.notice.failed', $body[0]);
     }
 }

@@ -2,7 +2,6 @@
 
 namespace Wallabag\CoreBundle\Command;
 
-use Craue\ConfigBundle\Entity\Setting;
 use FOS\UserBundle\Event\UserEvent;
 use FOS\UserBundle\FOSUserEvents;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
@@ -13,6 +12,8 @@ use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Wallabag\CoreBundle\Entity\IgnoreOriginInstanceRule;
+use Wallabag\CoreBundle\Entity\InternalSetting;
 
 class InstallCommand extends ContainerAwareCommand
 {
@@ -54,7 +55,7 @@ class InstallCommand extends ContainerAwareCommand
 
         $this->io = new SymfonyStyle($input, $output);
 
-        $this->io->title('Wallabag installer');
+        $this->io->title('wallabag installer');
 
         $this
             ->checkRequirements()
@@ -63,7 +64,7 @@ class InstallCommand extends ContainerAwareCommand
             ->setupConfig()
         ;
 
-        $this->io->success('Wallabag has been successfully installed.');
+        $this->io->success('wallabag has been successfully installed.');
         $this->io->success('You can now configure your web server, see https://doc.wallabag.org');
     }
 
@@ -81,7 +82,7 @@ class InstallCommand extends ContainerAwareCommand
         $status = '<info>OK!</info>';
         $help = '';
 
-        if (!extension_loaded($this->getContainer()->getParameter('database_driver'))) {
+        if (!\extension_loaded($this->getContainer()->getParameter('database_driver'))) {
             $fulfilled = false;
             $status = '<error>ERROR!</error>';
             $help = 'Database driver "' . $this->getContainer()->getParameter('database_driver') . '" is not installed.';
@@ -94,8 +95,9 @@ class InstallCommand extends ContainerAwareCommand
         $status = '<info>OK!</info>';
         $help = '';
 
+        $conn = $this->getContainer()->get('doctrine')->getManager()->getConnection();
+
         try {
-            $conn = $this->getContainer()->get('doctrine')->getManager()->getConnection();
             $conn->connect();
         } catch (\Exception $e) {
             if (false === strpos($e->getMessage(), 'Unknown database')
@@ -146,7 +148,7 @@ class InstallCommand extends ContainerAwareCommand
             $status = '<info>OK!</info>';
             $help = '';
 
-            if (!function_exists($functionRequired)) {
+            if (!\function_exists($functionRequired)) {
                 $fulfilled = false;
                 $status = '<error>ERROR!</error>';
                 $help = 'You need the ' . $functionRequired . ' function activated';
@@ -253,7 +255,7 @@ class InstallCommand extends ContainerAwareCommand
         $question->setHidden(true);
         $user->setPlainPassword($this->io->askQuestion($question));
 
-        $user->setEmail($this->io->ask('Email', ''));
+        $user->setEmail($this->io->ask('Email', 'wallabag@wallabag.io'));
 
         $user->setEnabled(true);
         $user->addRole('ROLE_SUPER_ADMIN');
@@ -275,14 +277,21 @@ class InstallCommand extends ContainerAwareCommand
         $em = $this->getContainer()->get('doctrine.orm.entity_manager');
 
         // cleanup before insert new stuff
-        $em->createQuery('DELETE FROM CraueConfigBundle:Setting')->execute();
+        $em->createQuery('DELETE FROM WallabagCoreBundle:InternalSetting')->execute();
+        $em->createQuery('DELETE FROM WallabagCoreBundle:IgnoreOriginInstanceRule')->execute();
 
         foreach ($this->getContainer()->getParameter('wallabag_core.default_internal_settings') as $setting) {
-            $newSetting = new Setting();
+            $newSetting = new InternalSetting();
             $newSetting->setName($setting['name']);
             $newSetting->setValue($setting['value']);
             $newSetting->setSection($setting['section']);
             $em->persist($newSetting);
+        }
+
+        foreach ($this->getContainer()->getParameter('wallabag_core.default_ignore_origin_instance_rules') as $ignore_origin_instance_rule) {
+            $newIgnoreOriginInstanceRule = new IgnoreOriginInstanceRule();
+            $newIgnoreOriginInstanceRule->setRule($ignore_origin_instance_rule['rule']);
+            $em->persist($newIgnoreOriginInstanceRule);
         }
 
         $em->flush();
@@ -325,9 +334,7 @@ class InstallCommand extends ContainerAwareCommand
         if (0 !== $exitCode) {
             $this->getApplication()->setAutoExit(true);
 
-            throw new \RuntimeException(
-                'The command "' . $command . "\" generates some errors: \n\n"
-                . $output->fetch());
+            throw new \RuntimeException('The command "' . $command . "\" generates some errors: \n\n" . $output->fetch());
         }
 
         return $this;
@@ -371,7 +378,7 @@ class InstallCommand extends ContainerAwareCommand
         }
 
         try {
-            return in_array($databaseName, $schemaManager->listDatabases(), true);
+            return \in_array($databaseName, $schemaManager->listDatabases(), true);
         } catch (\Doctrine\DBAL\Exception\DriverException $e) {
             // it means we weren't able to get database list, assume the database doesn't exist
 
@@ -389,6 +396,6 @@ class InstallCommand extends ContainerAwareCommand
     {
         $schemaManager = $this->getContainer()->get('doctrine')->getManager()->getConnection()->getSchemaManager();
 
-        return count($schemaManager->listTableNames()) > 0 ? true : false;
+        return \count($schemaManager->listTableNames()) > 0 ? true : false;
     }
 }

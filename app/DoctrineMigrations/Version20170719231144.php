@@ -2,29 +2,14 @@
 
 namespace Application\Migrations;
 
-use Doctrine\DBAL\Migrations\AbstractMigration;
 use Doctrine\DBAL\Schema\Schema;
-use Symfony\Component\DependencyInjection\ContainerAwareInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Wallabag\CoreBundle\Doctrine\WallabagMigration;
 
 /**
  * Changed tags to lowercase.
  */
-class Version20170719231144 extends AbstractMigration implements ContainerAwareInterface
+class Version20170719231144 extends WallabagMigration
 {
-    /**
-     * @var ContainerInterface
-     */
-    private $container;
-
-    public function setContainer(ContainerInterface $container = null)
-    {
-        $this->container = $container;
-    }
-
-    /**
-     * @param Schema $schema
-     */
     public function up(Schema $schema)
     {
         $this->skipIf('sqlite' === $this->connection->getDatabasePlatform()->getName(), 'Migration can only be executed safely on \'mysql\' or \'postgresql\'.');
@@ -67,7 +52,7 @@ class Version20170719231144 extends AbstractMigration implements ContainerAwareI
             }
 
             // Just in case...
-            if (count($ids) > 0) {
+            if (\count($ids) > 0) {
                 // Merge tags
                 $this->addSql('
                     UPDATE ' . $this->getTable('entry_tag') . '
@@ -101,16 +86,8 @@ class Version20170719231144 extends AbstractMigration implements ContainerAwareI
         );
     }
 
-    /**
-     * @param Schema $schema
-     */
     public function down(Schema $schema)
     {
         throw new SkipMigrationException('Too complex ...');
-    }
-
-    private function getTable($tableName)
-    {
-        return $this->container->getParameter('database_table_prefix') . $tableName;
     }
 }

@@ -21,7 +21,6 @@ class TagsAssigner
     /**
      * Assign some tags to an entry.
      *
-     * @param Entry        $entry
      * @param array|string $tags          An array of tag or a string coma separated of tag
      * @param array        $entitiesReady Entities from the EntityManager which are persisted but not yet flushed
      *                                    It is mostly to fix duplicate tag on import @see http://stackoverflow.com/a/7879164/569101
@@ -32,7 +31,7 @@ class TagsAssigner
     {
         $tagsEntities = [];
 
-        if (!is_array($tags)) {
+        if (!\is_array($tags)) {
             $tags = explode(',', $tags);
         }
 
@@ -48,7 +47,7 @@ class TagsAssigner
             $label = trim(mb_convert_case($label, MB_CASE_LOWER));
 
             // avoid empty tag
-            if (0 === strlen($label)) {
+            if (0 === \strlen($label)) {
                 continue;
             }
 

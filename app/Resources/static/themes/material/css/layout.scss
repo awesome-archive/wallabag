@@ -18,10 +18,18 @@ body {
   border-bottom: 1px solid #ddd;
 }
 
+a {
+  color: $blueAccentColor;
+}
+
 main,
 #content,
 .valign-wrapper {
   height: 100%;
+}
+
+.typo-logo {
+  max-width: 150px;
 }
 
 #main {

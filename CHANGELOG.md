@@ -1,5 +1,140 @@
 # Changelog
 
+## [2.3.8](https://github.com/wallabag/wallabag/tree/2.3.8)
+   [Full Changelog](https://github.com/wallabag/wallabag/compare/2.3.7...2.3.8)
+
+### Fixes
+
+- Jump to 2.3.8-dev [#3897](https://github.com/wallabag/wallabag/pull/3897)
+- material: fix left padding on non-entry pages [#3901](https://github.com/wallabag/wallabag/pull/3901)
+- Make dev/install/update script posix compatible [#3860](https://github.com/wallabag/wallabag/pull/3860)
+- epub: fix exception when articles have the same title [#3908](https://github.com/wallabag/wallabag/pull/3908)
+- Fix PHP warning [#3909](https://github.com/wallabag/wallabag/pull/3909)
+- Add ability to match many domains for credentials [#3937](https://github.com/wallabag/wallabag/pull/3937)
+- material: add metadata to list view [#3942](https://github.com/wallabag/wallabag/pull/3942)
+- Enable no-referrer on img tags, enable strict-origin-when-cross-origin by default [#3943](https://github.com/wallabag/wallabag/pull/3943)
+- Remove preview picture from share view page#3922
+- Fix Intl Locale issue [#3964](https://github.com/wallabag/wallabag/pull/3964)
+
+## [2.3.7](https://github.com/wallabag/wallabag/tree/2.3.7)
+   [Full Changelog](https://github.com/wallabag/wallabag/compare/2.3.6...2.3.7)
+
+### Fixes
+
+- Jump to 2.3.7-dev [#3837](https://github.com/wallabag/wallabag/pull/3837)
+- Fix bad order parameter in the API [#3841](https://github.com/wallabag/wallabag/pull/3841)
+- Update composer.json to add php-tidy (ext-tidy) [#3853](https://github.com/wallabag/wallabag/pull/3853)
+- Add dedicated email for site config issue [#3861](https://github.com/wallabag/wallabag/pull/3861)
+- Fix read & starred status in Pocket import [#3819](https://github.com/wallabag/wallabag/pull/3819)
+- Fix broken 2 factor auth logo image [#3869](https://github.com/wallabag/wallabag/pull/3869)
+- Fix CORS for API [#3882](https://github.com/wallabag/wallabag/pull/3882)
+- Add support of expect parameter to change return object when deleting entry [#3887](https://github.com/wallabag/wallabag/pull/3887)
+- epub export: fix missing cover image, only for exports of one article [#3886](https://github.com/wallabag/wallabag/pull/3886)
+- Allow optional --ignore-root-warning [#3885](https://github.com/wallabag/wallabag/pull/3885)
+- material: fix left padding of content on medium screens [#3893](https://github.com/wallabag/wallabag/pull/3893)
+- material: hide creation date from card actions on specific sizes [#3894](https://github.com/wallabag/wallabag/pull/3894)
+
+## [2.3.6](https://github.com/wallabag/wallabag/tree/2.3.6)
+   [Full Changelog](https://github.com/wallabag/wallabag/compare/2.3.5...2.3.6)
+
+### Fixes
+
+- Jump to 2.3.6-dev and update release process [#3814](https://github.com/wallabag/wallabag/pull/3814)
+- Fix tag API leak [#3823](https://github.com/wallabag/wallabag/pull/3823)
+- Validate imported entry to avoid error on import [#3816](https://github.com/wallabag/wallabag/pull/3816)
+- Fix incorrect reading time calculation for entries with CJK characters [#3820](https://github.com/wallabag/wallabag/pull/3820)
+- EntriesExport/epub: replace epub identifier with unique urn [#3827](https://github.com/wallabag/wallabag/pull/3827)
+- Fix settings field inverted [#3833](https://github.com/wallabag/wallabag/pull/3833)
+- Cast client id to avoid PG error [#3831](https://github.com/wallabag/wallabag/pull/3831)
+- Rework of EPUB/PDF exports [#3826](https://github.com/wallabag/wallabag/pull/3826)
+
+## [2.3.5](https://github.com/wallabag/wallabag/tree/2.3.5)
+   [Full Changelog](https://github.com/wallabag/wallabag/compare/2.3.4...2.3.5)
+
+### Fixes
+
+- Jump to 2.3.5-dev and update release process [#3778](https://github.com/wallabag/wallabag/pull/3778)
+- Remove preview picture from single entry view page [#3765](https://github.com/wallabag/wallabag/pull/3765)
+- Fix Android app login issue [#3784](https://github.com/wallabag/wallabag/pull/3784)
+- material: fix missing thumbnail on list view [#3782](https://github.com/wallabag/wallabag/pull/3782)
+- material: decrease size of tags on list view [#3783](https://github.com/wallabag/wallabag/pull/3783)
+- build: upgrade yarn dependencies, update prod assets [#3781](https://github.com/wallabag/wallabag/pull/3781)
+- No more dev for guzzle-site-authenticator [#3810](https://github.com/wallabag/wallabag/pull/3810)
+
+## [2.3.4](https://github.com/wallabag/wallabag/tree/2.3.4)
+   [Full Changelog](https://github.com/wallabag/wallabag/compare/2.3.3...2.3.4)
+
+### Fixes
+
+- Fix image downloading on null image path [#3684](https://github.com/wallabag/wallabag/pull/3684)
+- Remove remaining deprecation notices [#3686](https://github.com/wallabag/wallabag/pull/3686)
+- Fix mobile viewport on big iframe and video elements [#3683](https://github.com/wallabag/wallabag/pull/3683)
+- Autofocus the username field on the login page [#3691](https://github.com/wallabag/wallabag/pull/3691)
+- Feature/svg logo [#3692](https://github.com/wallabag/wallabag/pull/3692)
+- Fixes a typo [#3702](https://github.com/wallabag/wallabag/pull/3702)
+- Update release script [#3705](https://github.com/wallabag/wallabag/pull/3705)
+- Removing failing test from Travis [#3707](https://github.com/wallabag/wallabag/pull/3707)
+- Replace SO url by lemonde.fr to avoid random failing test [#3685](https://github.com/wallabag/wallabag/pull/3685)
+- php-cs-fixer: native_function_invocation [#3716](https://github.com/wallabag/wallabag/pull/3716)
+- PHP 7.2 shouldn't fail [#3717](https://github.com/wallabag/wallabag/pull/3717)
+- Liberation goes https [#3726](https://github.com/wallabag/wallabag/pull/3726)
+- Bugfix: Sanitize the title of a saved webpage from invalid UTF-8 characters. [#3725](https://github.com/wallabag/wallabag/pull/3725)
+- Fix dockerfile php72 [#3734](https://github.com/wallabag/wallabag/pull/3734)
+- Fix sort parameters [#3719](https://github.com/wallabag/wallabag/pull/3719)
+- Add note on GitHub PR template to auto-close issues [#3763](https://github.com/wallabag/wallabag/pull/3763)
+- Fix link to wallabag requirements in documentation [#3766](https://github.com/wallabag/wallabag/pull/3766)
+- Update translation when marking as read [#3772](https://github.com/wallabag/wallabag/pull/3772)
+- Makefile fixes for non GNU systems [#3706](https://github.com/wallabag/wallabag/pull/3706)
+- Card no preview replaced by wallabag logo [#3774](https://github.com/wallabag/wallabag/pull/3774)
+
+### Changes
+
+- Propose YunoHost badge for installing [#3678](https://github.com/wallabag/wallabag/pull/3678)
+- More robust srcset image attribute handling [#3690](https://github.com/wallabag/wallabag/pull/3690)
+- Rename getBuilderByUser and refactor query for untagged entries [#3712](https://github.com/wallabag/wallabag/pull/3712)
+- Show tags on non-image gallery preview card [#3743](https://github.com/wallabag/wallabag/pull/3743)
+- add manifest.json for android pwa [#3606](https://github.com/wallabag/wallabag/pull/3606)
+- Add placeholder image to card-based gallery entries page [#3745](https://github.com/wallabag/wallabag/pull/3745)
+- Abort running install and update script if root [#3733](https://github.com/wallabag/wallabag/pull/3733)
+- Swap entry url with origin url if graby provides an updated one [#3553](https://github.com/wallabag/wallabag/pull/3553)
+
+## [2.3.3](https://github.com/wallabag/wallabag/tree/2.3.3)
+   [Full Changelog](https://github.com/wallabag/wallabag/compare/2.3.2...2.3.3)
+
+### Fixes
+
+- Fix error when withRemove variable is not defined. [#3573](https://github.com/wallabag/wallabag/pull/3573)
+- Fix title card HTML parsing [#3592](https://github.com/wallabag/wallabag/pull/3592)
+- Fix tests [#3597](https://github.com/wallabag/wallabag/pull/3597)
+- Fix tests [#3619](https://github.com/wallabag/wallabag/pull/3619)
+- Better encoding of the URI for the bookmarklet [#3616](https://github.com/wallabag/wallabag/pull/3616)
+- Fix overflow wrap issue [#3652](https://github.com/wallabag/wallabag/pull/3652)
+- Fix/firefox mobile unneeded resize [#3653](https://github.com/wallabag/wallabag/pull/3653)
+- Fix srcset attribute on images downloaded [#3661](https://github.com/wallabag/wallabag/pull/3661)
+- Fix authors and preview alt encoding display [#3664](https://github.com/wallabag/wallabag/pull/3664)
+- Spelling: GitHub, Log out, of the dev [#3614](https://github.com/wallabag/wallabag/pull/3614)
+- Fix tests [#3668](https://github.com/wallabag/wallabag/pull/3668)
+- Fixed migrations with dash into db names [#3538](https://github.com/wallabag/wallabag/pull/3538)
+
+### Changes
+
+- Allow login by email [#3615](https://github.com/wallabag/wallabag/pull/3615)
+- Occitan update [#3646](https://github.com/wallabag/wallabag/pull/3646)
+- Highlight code in articles using highlight.js [#3636](https://github.com/wallabag/wallabag/pull/3636)
+
+## [2.3.2](https://github.com/wallabag/wallabag/tree/2.3.2)
+   [Full Changelog](https://github.com/wallabag/wallabag/compare/2.3.1...2.3.2)
+
+### Fixes
+
+- Add `set -eu` to update.sh [#3546](https://github.com/wallabag/wallabag/pull/3546)
+- Fix broken link to remove tags from entries [#3536](https://github.com/wallabag/wallabag/pull/3536)
+
+### Changes
+
+- Nav actions updated [#3541](https://github.com/wallabag/wallabag/pull/3541)
+- Replaced Create new client link with a button [#3539](https://github.com/wallabag/wallabag/pull/3539)
+
 ## [2.3.1](https://github.com/wallabag/wallabag/tree/2.3.1)
    [Full Changelog](https://github.com/wallabag/wallabag/compare/2.3.0...2.3.1)
 

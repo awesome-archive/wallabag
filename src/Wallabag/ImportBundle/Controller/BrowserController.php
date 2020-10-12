@@ -2,18 +2,16 @@
 
 namespace Wallabag\ImportBundle\Controller;
 
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
 use Wallabag\ImportBundle\Form\Type\UploadImportType;
 
 abstract class BrowserController extends Controller
 {
     /**
      * @Route("/browser", name="import_browser")
-     *
-     * @param Request $request
      *
      * @return Response
      */
@@ -30,7 +28,7 @@ abstract class BrowserController extends Controller
             $markAsRead = $form->get('mark_as_read')->getData();
             $name = $this->getUser()->getId() . '.json';
 
-            if (null !== $file && in_array($file->getClientMimeType(), $this->getParameter('wallabag_import.allow_mimetypes'), true) && $file->move($this->getParameter('wallabag_import.resource_dir'), $name)) {
+            if (null !== $file && \in_array($file->getClientMimeType(), $this->getParameter('wallabag_import.allow_mimetypes'), true) && $file->move($this->getParameter('wallabag_import.resource_dir'), $name)) {
                 $res = $wallabag
                     ->setFilepath($this->getParameter('wallabag_import.resource_dir') . '/' . $name)
                     ->setMarkAsRead($markAsRead)

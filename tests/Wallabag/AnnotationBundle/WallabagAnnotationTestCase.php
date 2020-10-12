@@ -17,7 +17,7 @@ abstract class WallabagAnnotationTestCase extends WebTestCase
      */
     protected $user;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->client = $this->createAuthorizedClient();
     }
@@ -43,9 +43,9 @@ abstract class WallabagAnnotationTestCase extends WebTestCase
         $container = $client->getContainer();
 
         /** @var $userManager \FOS\UserBundle\Doctrine\UserManager */
-        $userManager = $container->get('fos_user.user_manager');
+        $userManager = $container->get('fos_user.user_manager.test');
         /** @var $loginManager \FOS\UserBundle\Security\LoginManager */
-        $loginManager = $container->get('fos_user.security.login_manager');
+        $loginManager = $container->get('fos_user.security.login_manager.test');
         $firewallName = $container->getParameter('fos_user.firewall_name');
 
         $this->user = $userManager->findUserBy(['username' => 'admin']);

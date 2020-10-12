@@ -1,7 +1,7 @@
 settings_changed: Configuracion mesa a jorn
 download_pictures: Telecargar los imatges sul servidor
 carrot: Activar lo partatge cap a Carrot
-diaspora_url: URL de Diaspora, se lo servici Diaspora es activat
+diaspora_url: URL de diaspora*, se lo servici diaspora* es activat
 export_epub: Activar l'expòrt ePub
 export_mobi: Activar l'expòrt .mobi
 export_pdf: Activar l'expòrt PDF
@@ -27,14 +27,14 @@ export: "expòrt"
 import: "impòrt"
 misc: "divèrs"
 modify_settings: "aplicar"
-piwik_host: URL de vòstre site dins Piwik (sense http:// o https://)
-piwik_site_id: ID de vòstre site dins Piwik
-piwik_enabled: Activar Piwik
+matomo_host: URL de vòstre site dins Matomo (sense http:// o https://)
+matomo_site_id: ID de vòstre site dins Matomo
+matomo_enabled: Activar Matomo
 demo_mode_enabled: "Activar lo mode demostracion ? (utilizar solament per la demostracion publica de wallabag)"
 demo_mode_username: "Utilizaire de la demostracion"
 share_public: Autorizar una URL publica pels articles
 download_images_enabled: Telecargar los imatges en local
 restricted_access: Activar l'autenticacion pels sites amb peatge
 api_user_registration: Autorizar los utilizaires a se marcar amb l'API
-# store_article_headers: Enable if wallabag stores HTTP headers for each article
-# shaarli_share_origin_url: Enable sharing origin url to Shaarli, if the service is enabled
+store_article_headers: Activar se wallabag garda las entèstas HTTP per cada article
+shaarli_share_origin_url: Activar lo partatge de l’url amb Shaarli, se lo servici es activat

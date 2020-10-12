@@ -2,42 +2,32 @@
 
 namespace Application\Migrations;
 
-use Doctrine\DBAL\Migrations\AbstractMigration;
 use Doctrine\DBAL\Migrations\SkipMigrationException;
 use Doctrine\DBAL\Schema\Schema;
-use Symfony\Component\DependencyInjection\ContainerAwareInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Wallabag\CoreBundle\Doctrine\WallabagMigration;
 
 /**
  * Increase the length of the "quote" column of "annotation" table.
  */
-class Version20170511211659 extends AbstractMigration implements ContainerAwareInterface
+class Version20170511211659 extends WallabagMigration
 {
-    /**
-     * @var ContainerInterface
-     */
-    private $container;
-
-    public function setContainer(ContainerInterface $container = null)
-    {
-        $this->container = $container;
-    }
-
     public function up(Schema $schema)
     {
-        $tableName = $this->getTable('annotation');
-
         switch ($this->connection->getDatabasePlatform()->getName()) {
             case 'sqlite':
+                $annotationTableName = $this->getTable('annotation', true);
+                $userTableName = $this->getTable('user', true);
+                $entryTableName = $this->getTable('entry', true);
+
                 $this->addSql(<<<EOD
-CREATE TEMPORARY TABLE __temp__wallabag_annotation AS 
-    SELECT id, user_id, entry_id, text, created_at, updated_at, quote, ranges 
-    FROM ${tableName}
+CREATE TEMPORARY TABLE __temp__wallabag_annotation AS
+    SELECT id, user_id, entry_id, text, created_at, updated_at, quote, ranges
+    FROM ${annotationTableName}
 EOD
                 );
-                $this->addSql('DROP TABLE ' . $tableName);
+                $this->addSql('DROP TABLE ' . $annotationTableName);
                 $this->addSql(<<<EOD
-CREATE TABLE ${tableName}
+CREATE TABLE ${annotationTableName}
 (
     id INTEGER PRIMARY KEY NOT NULL,
     user_id INTEGER DEFAULT NULL,
@@ -47,27 +37,27 @@ CREATE TABLE ${tableName}
     updated_at DATETIME NOT NULL,
     quote CLOB NOT NULL,
     ranges CLOB NOT NULL,
-    CONSTRAINT FK_A7AED006A76ED395 FOREIGN KEY (user_id) REFERENCES wallabag_user (id),
-    CONSTRAINT FK_A7AED006BA364942 FOREIGN KEY (entry_id) REFERENCES wallabag_entry (id) ON DELETE CASCADE
+    CONSTRAINT FK_A7AED006A76ED395 FOREIGN KEY (user_id) REFERENCES ${userTableName} (id),
+    CONSTRAINT FK_A7AED006BA364942 FOREIGN KEY (entry_id) REFERENCES ${entryTableName} (id) ON DELETE CASCADE
 );
-CREATE INDEX IDX_A7AED006A76ED395 ON wallabag_annotation (user_id);
-CREATE INDEX IDX_A7AED006BA364942 ON wallabag_annotation (entry_id);
+CREATE INDEX IDX_A7AED006A76ED395 ON ${annotationTableName} (user_id);
+CREATE INDEX IDX_A7AED006BA364942 ON ${annotationTableName} (entry_id);
 EOD
                 );
 
                 $this->addSql(<<<EOD
-INSERT INTO ${tableName} (id, user_id, entry_id, text, created_at, updated_at, quote, ranges) 
-SELECT id, user_id, entry_id, text, created_at, updated_at, quote, ranges 
+INSERT INTO ${annotationTableName} (id, user_id, entry_id, text, created_at, updated_at, quote, ranges)
+SELECT id, user_id, entry_id, text, created_at, updated_at, quote, ranges
 FROM __temp__wallabag_annotation;
 EOD
                 );
                 $this->addSql('DROP TABLE __temp__wallabag_annotation');
                 break;
             case 'mysql':
-                $this->addSql('ALTER TABLE ' . $tableName . ' MODIFY quote TEXT NOT NULL');
+                $this->addSql('ALTER TABLE ' . $this->getTable('annotation') . ' MODIFY quote TEXT NOT NULL');
                 break;
             case 'postgresql':
-                $this->addSql('ALTER TABLE ' . $tableName . ' ALTER COLUMN quote TYPE TEXT');
+                $this->addSql('ALTER TABLE ' . $this->getTable('annotation') . ' ALTER COLUMN quote TYPE TEXT');
                 break;
         }
     }
@@ -87,10 +77,5 @@ EOD
                 $this->addSql('ALTER TABLE ' . $tableName . ' ALTER COLUMN quote TYPE VARCHAR(255)');
                 break;
         }
-    }
-
-    private function getTable($tableName)
-    {
-        return $this->container->getParameter('database_table_prefix') . $tableName;
     }
 }

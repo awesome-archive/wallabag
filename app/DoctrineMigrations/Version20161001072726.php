@@ -2,30 +2,15 @@
 
 namespace Application\Migrations;
 
-use Doctrine\DBAL\Migrations\AbstractMigration;
 use Doctrine\DBAL\Migrations\SkipMigrationException;
 use Doctrine\DBAL\Schema\Schema;
-use Symfony\Component\DependencyInjection\ContainerAwareInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Wallabag\CoreBundle\Doctrine\WallabagMigration;
 
 /**
  * Added pocket_consumer_key field on wallabag_config.
  */
-class Version20161001072726 extends AbstractMigration implements ContainerAwareInterface
+class Version20161001072726 extends WallabagMigration
 {
-    /**
-     * @var ContainerInterface
-     */
-    private $container;
-
-    public function setContainer(ContainerInterface $container = null)
-    {
-        $this->container = $container;
-    }
-
-    /**
-     * @param Schema $schema
-     */
     public function up(Schema $schema)
     {
         $this->skipIf('sqlite' === $this->connection->getDatabasePlatform()->getName(), 'Migration can only be executed safely on \'mysql\' or \'postgresql\'.');
@@ -36,7 +21,7 @@ class Version20161001072726 extends AbstractMigration implements ContainerAwareI
                 $query = $this->connection->query("
                     SELECT CONSTRAINT_NAME
                     FROM information_schema.key_column_usage
-                    WHERE TABLE_NAME = '" . $this->getTable('entry_tag') . "' AND CONSTRAINT_NAME LIKE 'FK_%'
+                    WHERE TABLE_NAME = '" . $this->getTable('entry_tag', WallabagMigration::UN_ESCAPED_TABLE) . "' AND CONSTRAINT_NAME LIKE 'FK_%'
                     AND TABLE_SCHEMA = '" . $this->connection->getDatabase() . "'"
                 );
                 $query->execute();
@@ -54,7 +39,7 @@ class Version20161001072726 extends AbstractMigration implements ContainerAwareI
                     FROM   pg_constraint c
                     JOIN   pg_namespace n ON n.oid = c.connamespace
                     WHERE  contype = 'f'
-                    AND    conrelid::regclass::text = '" . $this->getTable('entry_tag') . "'
+                    AND    conrelid::regclass::text = '" . $this->getTable('entry_tag', WallabagMigration::UN_ESCAPED_TABLE) . "'
                     AND    n.nspname = 'public';"
                 );
                 $query->execute();
@@ -75,7 +60,7 @@ class Version20161001072726 extends AbstractMigration implements ContainerAwareI
                 $query = $this->connection->query("
                     SELECT CONSTRAINT_NAME
                     FROM information_schema.key_column_usage
-                    WHERE TABLE_NAME = '" . $this->getTable('annotation') . "'
+                    WHERE TABLE_NAME = '" . $this->getTable('annotation', WallabagMigration::UN_ESCAPED_TABLE) . "'
                     AND CONSTRAINT_NAME LIKE 'FK_%'
                     AND COLUMN_NAME = 'entry_id'
                     AND TABLE_SCHEMA = '" . $this->connection->getDatabase() . "'"
@@ -95,7 +80,7 @@ class Version20161001072726 extends AbstractMigration implements ContainerAwareI
                     FROM   pg_constraint c
                     JOIN   pg_namespace n ON n.oid = c.connamespace
                     WHERE  contype = 'f'
-                    AND    conrelid::regclass::text = '" . $this->getTable('annotation') . "'
+                    AND    conrelid::regclass::text = '" . $this->getTable('annotation', WallabagMigration::UN_ESCAPED_TABLE) . "'
                     AND    n.nspname = 'public'
                     AND    pg_get_constraintdef(c.oid) LIKE '%entry_id%';"
                 );
@@ -110,16 +95,8 @@ class Version20161001072726 extends AbstractMigration implements ContainerAwareI
         $this->addSql('ALTER TABLE ' . $this->getTable('annotation') . ' ADD CONSTRAINT FK_annotation_entry FOREIGN KEY (entry_id) REFERENCES ' . $this->getTable('entry') . ' (id) ON DELETE CASCADE');
     }
 
-    /**
-     * @param Schema $schema
-     */
     public function down(Schema $schema)
     {
         throw new SkipMigrationException('Too complex ...');
-    }
-
-    private function getTable($tableName)
-    {
-        return $this->container->getParameter('database_table_prefix') . $tableName;
     }
 }

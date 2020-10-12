@@ -2,29 +2,14 @@
 
 namespace Application\Migrations;
 
-use Doctrine\DBAL\Migrations\AbstractMigration;
 use Doctrine\DBAL\Schema\Schema;
-use Symfony\Component\DependencyInjection\ContainerAwareInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Wallabag\CoreBundle\Doctrine\WallabagMigration;
 
 /**
  * Added settings for RabbitMQ and Redis imports.
  */
-class Version20160911214952 extends AbstractMigration implements ContainerAwareInterface
+class Version20160911214952 extends WallabagMigration
 {
-    /**
-     * @var ContainerInterface
-     */
-    private $container;
-
-    public function setContainer(ContainerInterface $container = null)
-    {
-        $this->container = $container;
-    }
-
-    /**
-     * @param Schema $schema
-     */
     public function up(Schema $schema)
     {
         $redis = $this->container
@@ -48,17 +33,9 @@ class Version20160911214952 extends AbstractMigration implements ContainerAwareI
         $this->skipIf(false !== $rabbitmq && false !== $redis, 'It seems that you already played this migration.');
     }
 
-    /**
-     * @param Schema $schema
-     */
     public function down(Schema $schema)
     {
         $this->addSql('DELETE FROM ' . $this->getTable('craue_config_setting') . " WHERE name = 'import_with_redis';");
         $this->addSql('DELETE FROM ' . $this->getTable('craue_config_setting') . " WHERE name = 'import_with_rabbitmq';");
-    }
-
-    private function getTable($tableName)
-    {
-        return $this->container->getParameter('database_table_prefix') . $tableName;
     }
 }

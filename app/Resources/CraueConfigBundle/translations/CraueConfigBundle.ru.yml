@@ -27,14 +27,15 @@ export: "экспорт"
 import: "импорт"
 misc: "разное"
 modify_settings: "применить"
-piwik_host: "Ссылка на Ваш сайт на Piwik (с http:// или https://)"
-piwik_site_id: "ID Вашего сайта на Piwik"
-piwik_enabled: "Включить Piwik"
+matomo_host: "Ссылка на Ваш сайт на Matomo (с http:// или https://)"
+matomo_site_id: "ID Вашего сайта на Matomo"
+matomo_enabled: "Включить Matomo"
 demo_mode_enabled: "Включить демо режим ? (только для публичной демонстрации wallabag)"
 demo_mode_username: "Демо пользователь"
 share_public: "Разрешить публичные ссылки на записи"
 download_images_enabled: "Скачивать изображения локально"
 restricted_access: "Включить авторизацию на сайте с помощью paywall"
-# api_user_registration: Enable user to be registered using the API
-# store_article_headers: Enable if wallabag stores HTTP headers for each article
-# shaarli_share_origin_url: Enable sharing origin url to Shaarli, if the service is enabled
+shaarli_share_origin_url: Включите отправку URL-адреса источника для Shaarli, если услуга включена
+store_article_headers: Включите, если wallabag хранит заголовки HTTP для каждой статьи
+api_user_registration: Разрешить пользователю регистрироваться с помощью API
+share_scuttle: Включить возможность поделиться в Shaarli

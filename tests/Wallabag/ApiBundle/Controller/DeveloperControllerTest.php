@@ -28,10 +28,10 @@ class DeveloperControllerTest extends WallabagCoreTestCase
         $this->assertSame(200, $client->getResponse()->getStatusCode());
 
         $newNbClients = $em->getRepository('WallabagApiBundle:Client')->findAll();
-        $this->assertGreaterThan(count($nbClients), count($newNbClients));
+        $this->assertGreaterThan(\count($nbClients), \count($newNbClients));
 
-        $this->assertGreaterThan(1, $alert = $crawler->filter('.settings ul li strong')->extract(['_text']));
-        $this->assertContains('My app', $alert[0]);
+        $this->assertGreaterThan(1, $alert = $crawler->filter('.settings table strong')->extract(['_text']));
+        $this->assertStringContainsString('My app', $alert[0]);
     }
 
     public function testCreateToken()
@@ -56,6 +56,20 @@ class DeveloperControllerTest extends WallabagCoreTestCase
         $this->assertArrayHasKey('refresh_token', $data);
     }
 
+    public function testCreateTokenWithBadClientId()
+    {
+        $client = $this->getClient();
+        $client->request('POST', '/oauth/v2/token', [
+            'grant_type' => 'password',
+            'client_id' => '$WALLABAG_CLIENT_ID',
+            'client_secret' => 'secret',
+            'username' => 'admin',
+            'password' => 'mypassword',
+        ]);
+
+        $this->assertSame(400, $client->getResponse()->getStatusCode());
+    }
+
     public function testListingClient()
     {
         $this->logInAs('admin');
@@ -65,7 +79,7 @@ class DeveloperControllerTest extends WallabagCoreTestCase
 
         $crawler = $client->request('GET', '/developer');
         $this->assertSame(200, $client->getResponse()->getStatusCode());
-        $this->assertSame(count($nbClients), $crawler->filter('ul[class=collapsible] li')->count());
+        $this->assertSame(\count($nbClients), $crawler->filter('ul[class=collapsible] li')->count());
     }
 
     public function testDeveloperHowto()
@@ -86,7 +100,7 @@ class DeveloperControllerTest extends WallabagCoreTestCase
         // Try to remove an admin's client with a wrong user
         $this->logInAs('bob');
         $client->request('GET', '/developer');
-        $this->assertContains('no_client', $client->getResponse()->getContent());
+        $this->assertStringContainsString('no_client', $client->getResponse()->getContent());
 
         $this->logInAs('bob');
         $client->request('GET', '/developer/client/delete/' . $adminApiClient->getId());
@@ -121,7 +135,7 @@ class DeveloperControllerTest extends WallabagCoreTestCase
     {
         $client = $this->getClient();
         $em = $client->getContainer()->get('doctrine.orm.entity_manager');
-        $userManager = $client->getContainer()->get('fos_user.user_manager');
+        $userManager = $client->getContainer()->get('fos_user.user_manager.test');
         $user = $userManager->findUserBy(['username' => $username]);
         $apiClient = new Client($user);
         $apiClient->setName('My app');

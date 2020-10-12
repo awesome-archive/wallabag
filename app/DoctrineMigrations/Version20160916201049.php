@@ -2,29 +2,14 @@
 
 namespace Application\Migrations;
 
-use Doctrine\DBAL\Migrations\AbstractMigration;
 use Doctrine\DBAL\Schema\Schema;
-use Symfony\Component\DependencyInjection\ContainerAwareInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Wallabag\CoreBundle\Doctrine\WallabagMigration;
 
 /**
  * Added pocket_consumer_key field on wallabag_config.
  */
-class Version20160916201049 extends AbstractMigration implements ContainerAwareInterface
+class Version20160916201049 extends WallabagMigration
 {
-    /**
-     * @var ContainerInterface
-     */
-    private $container;
-
-    public function setContainer(ContainerInterface $container = null)
-    {
-        $this->container = $container;
-    }
-
-    /**
-     * @param Schema $schema
-     */
     public function up(Schema $schema)
     {
         $configTable = $schema->getTable($this->getTable('config'));
@@ -35,18 +20,10 @@ class Version20160916201049 extends AbstractMigration implements ContainerAwareI
         $this->addSql('DELETE FROM ' . $this->getTable('craue_config_setting') . " WHERE name = 'pocket_consumer_key';");
     }
 
-    /**
-     * @param Schema $schema
-     */
     public function down(Schema $schema)
     {
         $configTable = $schema->getTable($this->getTable('config'));
         $configTable->dropColumn('pocket_consumer_key');
         $this->addSql('INSERT INTO ' . $this->getTable('craue_config_setting') . " (name, value, section) VALUES ('pocket_consumer_key', NULL, 'import')");
-    }
-
-    private function getTable($tableName)
-    {
-        return $this->container->getParameter('database_table_prefix') . $tableName;
     }
 }

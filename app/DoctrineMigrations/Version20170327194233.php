@@ -2,29 +2,14 @@
 
 namespace Application\Migrations;
 
-use Doctrine\DBAL\Migrations\AbstractMigration;
 use Doctrine\DBAL\Schema\Schema;
-use Symfony\Component\DependencyInjection\ContainerAwareInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Wallabag\CoreBundle\Doctrine\WallabagMigration;
 
 /**
  * Add the share_scuttle internal setting.
  */
-class Version20170327194233 extends AbstractMigration implements ContainerAwareInterface
+class Version20170327194233 extends WallabagMigration
 {
-    /**
-     * @var ContainerInterface
-     */
-    private $container;
-
-    public function setContainer(ContainerInterface $container = null)
-    {
-        $this->container = $container;
-    }
-
-    /**
-     * @param Schema $schema
-     */
     public function up(Schema $schema)
     {
         $scuttle = $this->container
@@ -38,17 +23,9 @@ class Version20170327194233 extends AbstractMigration implements ContainerAwareI
         $this->addSql('INSERT INTO ' . $this->getTable('craue_config_setting') . " (name, value, section) VALUES ('scuttle_url', 'http://scuttle.org', 'entry')");
     }
 
-    /**
-     * @param Schema $schema
-     */
     public function down(Schema $schema)
     {
         $this->addSql('DELETE FROM ' . $this->getTable('craue_config_setting') . " WHERE name = 'share_scuttle';");
         $this->addSql('DELETE FROM ' . $this->getTable('craue_config_setting') . " WHERE name = 'scuttle_url';");
-    }
-
-    private function getTable($tableName)
-    {
-        return $this->container->getParameter('database_table_prefix') . $tableName;
     }
 }

@@ -22,8 +22,8 @@ class CleanDuplicatesCommandTest extends WallabagCoreTestCase
             'command' => $command->getName(),
         ]);
 
-        $this->assertContains('Cleaning through 3 user accounts', $tester->getDisplay());
-        $this->assertContains('Finished cleaning. 0 duplicates found in total', $tester->getDisplay());
+        $this->assertStringContainsString('Cleaning through 3 user accounts', $tester->getDisplay());
+        $this->assertStringContainsString('Finished cleaning. 0 duplicates found in total', $tester->getDisplay());
     }
 
     public function testRunCleanDuplicatesCommandWithBadUsername()
@@ -39,7 +39,7 @@ class CleanDuplicatesCommandTest extends WallabagCoreTestCase
             'username' => 'unknown',
         ]);
 
-        $this->assertContains('User "unknown" not found', $tester->getDisplay());
+        $this->assertStringContainsString('User "unknown" not found', $tester->getDisplay());
     }
 
     public function testRunCleanDuplicatesCommandForUser()
@@ -55,12 +55,12 @@ class CleanDuplicatesCommandTest extends WallabagCoreTestCase
             'username' => 'admin',
         ]);
 
-        $this->assertContains('Cleaned 0 duplicates for user admin', $tester->getDisplay());
+        $this->assertStringContainsString('Cleaned 0 duplicates for user admin', $tester->getDisplay());
     }
 
     public function testDuplicate()
     {
-        $url = 'http://www.lemonde.fr/sport/visuel/2017/05/05/rondelle-prison-blanchissage-comprendre-le-hockey-sur-glace_5122587_3242.html';
+        $url = 'https://www.lemonde.fr/sport/visuel/2017/05/05/rondelle-prison-blanchissage-comprendre-le-hockey-sur-glace_5122587_3242.html';
         $client = $this->getClient();
         $em = $client->getContainer()->get('doctrine.orm.entity_manager');
 
@@ -96,7 +96,7 @@ class CleanDuplicatesCommandTest extends WallabagCoreTestCase
             'username' => 'admin',
         ]);
 
-        $this->assertContains('Cleaned 1 duplicates for user admin', $tester->getDisplay());
+        $this->assertStringContainsString('Cleaned 1 duplicates for user admin', $tester->getDisplay());
 
         $nbEntries = $em->getRepository('WallabagCoreBundle:Entry')->findAllByUrlAndUserId($url, $this->getLoggedInUserId());
         $this->assertCount(1, $nbEntries);

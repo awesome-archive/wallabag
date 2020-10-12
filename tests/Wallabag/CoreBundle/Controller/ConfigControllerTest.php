@@ -1,7 +1,8 @@
 <?php
 
-namespace tests\Wallabag\CoreBundle\Controller;
+namespace Tests\Wallabag\CoreBundle\Controller;
 
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Tests\Wallabag\CoreBundle\WallabagCoreTestCase;
 use Wallabag\AnnotationBundle\Entity\Annotation;
 use Wallabag\CoreBundle\Entity\Config;
@@ -18,7 +19,7 @@ class ConfigControllerTest extends WallabagCoreTestCase
         $client->request('GET', '/new');
 
         $this->assertSame(302, $client->getResponse()->getStatusCode());
-        $this->assertContains('login', $client->getResponse()->headers->get('location'));
+        $this->assertStringContainsString('login', $client->getResponse()->headers->get('location'));
     }
 
     public function testIndex()
@@ -33,7 +34,7 @@ class ConfigControllerTest extends WallabagCoreTestCase
         $this->assertCount(1, $crawler->filter('button[id=config_save]'));
         $this->assertCount(1, $crawler->filter('button[id=change_passwd_save]'));
         $this->assertCount(1, $crawler->filter('button[id=update_user_save]'));
-        $this->assertCount(1, $crawler->filter('button[id=rss_config_save]'));
+        $this->assertCount(1, $crawler->filter('button[id=feed_config_save]'));
     }
 
     public function testUpdate()
@@ -50,7 +51,7 @@ class ConfigControllerTest extends WallabagCoreTestCase
         $data = [
             'config[theme]' => 'baggy',
             'config[items_per_page]' => '30',
-            'config[reading_speed]' => '0.5',
+            'config[reading_speed]' => '100',
             'config[action_mark_as_read]' => '0',
             'config[language]' => 'en',
         ];
@@ -61,7 +62,7 @@ class ConfigControllerTest extends WallabagCoreTestCase
 
         $crawler = $client->followRedirect();
 
-        $this->assertContains('flashes.config.notice.config_saved', $crawler->filter('body')->extract(['_text'])[0]);
+        $this->assertStringContainsString('flashes.config.notice.config_saved', $crawler->filter('body')->extract(['_text'])[0]);
     }
 
     public function testChangeReadingSpeed()
@@ -91,7 +92,7 @@ class ConfigControllerTest extends WallabagCoreTestCase
         $crawler = $client->request('GET', '/config');
         $form = $crawler->filter('button[id=config_save]')->form();
         $data = [
-            'config[reading_speed]' => '2',
+            'config[reading_speed]' => '400',
         ];
         $client->submit($form, $data);
 
@@ -105,7 +106,7 @@ class ConfigControllerTest extends WallabagCoreTestCase
         $crawler = $client->request('GET', '/config');
         $form = $crawler->filter('button[id=config_save]')->form();
         $data = [
-            'config[reading_speed]' => '0.5',
+            'config[reading_speed]' => '100',
         ];
         $client->submit($form, $data);
     }
@@ -140,7 +141,7 @@ class ConfigControllerTest extends WallabagCoreTestCase
         $this->assertSame(200, $client->getResponse()->getStatusCode());
 
         $this->assertGreaterThan(1, $alert = $crawler->filter('body')->extract(['_text']));
-        $this->assertContains('This value should not be blank', $alert[0]);
+        $this->assertStringContainsString('This value should not be blank', $alert[0]);
     }
 
     public function dataForChangePasswordFailed()
@@ -200,7 +201,7 @@ class ConfigControllerTest extends WallabagCoreTestCase
         $this->assertSame(200, $client->getResponse()->getStatusCode());
 
         $this->assertGreaterThan(1, $alert = $crawler->filter('body')->extract(['_text']));
-        $this->assertContains($expectedMessage, $alert[0]);
+        $this->assertStringContainsString($expectedMessage, $alert[0]);
     }
 
     public function testChangePassword()
@@ -226,7 +227,7 @@ class ConfigControllerTest extends WallabagCoreTestCase
 
         $crawler = $client->followRedirect();
 
-        $this->assertContains('flashes.config.notice.password_updated', $crawler->filter('body')->extract(['_text'])[0]);
+        $this->assertStringContainsString('flashes.config.notice.password_updated', $crawler->filter('body')->extract(['_text'])[0]);
     }
 
     public function dataForUserFailed()
@@ -268,7 +269,7 @@ class ConfigControllerTest extends WallabagCoreTestCase
         $this->assertSame(200, $client->getResponse()->getStatusCode());
 
         $this->assertGreaterThan(1, $alert = $crawler->filter('body')->extract(['_text']));
-        $this->assertContains($expectedMessage, $alert[0]);
+        $this->assertStringContainsString($expectedMessage, $alert[0]);
     }
 
     public function testUserUpdate()
@@ -294,10 +295,10 @@ class ConfigControllerTest extends WallabagCoreTestCase
         $crawler = $client->followRedirect();
 
         $this->assertGreaterThan(1, $alert = $crawler->filter('body')->extract(['_text']));
-        $this->assertContains('flashes.config.notice.user_updated', $alert[0]);
+        $this->assertStringContainsString('flashes.config.notice.user_updated', $alert[0]);
     }
 
-    public function testRssUpdateResetToken()
+    public function testFeedUpdateResetToken()
     {
         $this->logInAs('admin');
         $client = $this->getClient();
@@ -313,7 +314,7 @@ class ConfigControllerTest extends WallabagCoreTestCase
         }
 
         $config = $user->getConfig();
-        $config->setRssToken(null);
+        $config->setFeedToken(null);
         $em->persist($config);
         $em->flush();
 
@@ -322,7 +323,7 @@ class ConfigControllerTest extends WallabagCoreTestCase
         $this->assertSame(200, $client->getResponse()->getStatusCode());
 
         $this->assertGreaterThan(1, $body = $crawler->filter('body')->extract(['_text']));
-        $this->assertContains('config.form_rss.no_token', $body[0]);
+        $this->assertStringContainsString('config.form_feed.no_token', $body[0]);
 
         $client->request('GET', '/generate-token');
         $this->assertSame(302, $client->getResponse()->getStatusCode());
@@ -330,7 +331,7 @@ class ConfigControllerTest extends WallabagCoreTestCase
         $crawler = $client->followRedirect();
 
         $this->assertGreaterThan(1, $body = $crawler->filter('body')->extract(['_text']));
-        $this->assertNotContains('config.form_rss.no_token', $body[0]);
+        $this->assertStringContainsString('config.form_feed.token_reset', $body[0]);
     }
 
     public function testGenerateTokenAjax()
@@ -351,7 +352,23 @@ class ConfigControllerTest extends WallabagCoreTestCase
         $this->assertArrayHasKey('token', $content);
     }
 
-    public function testRssUpdate()
+    public function testRevokeTokenAjax()
+    {
+        $this->logInAs('admin');
+        $client = $this->getClient();
+
+        $client->request(
+            'GET',
+            '/revoke-token',
+            [],
+            [],
+            ['HTTP_X-Requested-With' => 'XMLHttpRequest']
+        );
+
+        $this->assertSame(200, $client->getResponse()->getStatusCode());
+    }
+
+    public function testFeedUpdate()
     {
         $this->logInAs('admin');
         $client = $this->getClient();
@@ -360,10 +377,10 @@ class ConfigControllerTest extends WallabagCoreTestCase
 
         $this->assertSame(200, $client->getResponse()->getStatusCode());
 
-        $form = $crawler->filter('button[id=rss_config_save]')->form();
+        $form = $crawler->filter('button[id=feed_config_save]')->form();
 
         $data = [
-            'rss_config[rss_limit]' => 12,
+            'feed_config[feed_limit]' => 12,
         ];
 
         $client->submit($form, $data);
@@ -372,31 +389,31 @@ class ConfigControllerTest extends WallabagCoreTestCase
 
         $crawler = $client->followRedirect();
 
-        $this->assertContains('flashes.config.notice.rss_updated', $crawler->filter('body')->extract(['_text'])[0]);
+        $this->assertStringContainsString('flashes.config.notice.feed_updated', $crawler->filter('body')->extract(['_text'])[0]);
     }
 
-    public function dataForRssFailed()
+    public function dataForFeedFailed()
     {
         return [
             [
                 [
-                    'rss_config[rss_limit]' => 0,
+                    'feed_config[feed_limit]' => 0,
                 ],
                 'This value should be 1 or more.',
             ],
             [
                 [
-                    'rss_config[rss_limit]' => 1000000000000,
+                    'feed_config[feed_limit]' => 1000000000000,
                 ],
-                'validator.rss_limit_too_high',
+                'validator.feed_limit_too_high',
             ],
         ];
     }
 
     /**
-     * @dataProvider dataForRssFailed
+     * @dataProvider dataForFeedFailed
      */
-    public function testRssFailed($data, $expectedMessage)
+    public function testFeedFailed($data, $expectedMessage)
     {
         $this->logInAs('admin');
         $client = $this->getClient();
@@ -405,20 +422,19 @@ class ConfigControllerTest extends WallabagCoreTestCase
 
         $this->assertSame(200, $client->getResponse()->getStatusCode());
 
-        $form = $crawler->filter('button[id=rss_config_save]')->form();
+        $form = $crawler->filter('button[id=feed_config_save]')->form();
 
         $crawler = $client->submit($form, $data);
 
         $this->assertSame(200, $client->getResponse()->getStatusCode());
 
         $this->assertGreaterThan(1, $alert = $crawler->filter('body')->extract(['_text']));
-        $this->assertContains($expectedMessage, $alert[0]);
+        $this->assertStringContainsString($expectedMessage, $alert[0]);
     }
 
     public function testTaggingRuleCreation()
     {
         $this->logInAs('admin');
-        $this->useTheme('baggy');
         $client = $this->getClient();
 
         $crawler = $client->request('GET', '/config');
@@ -438,13 +454,13 @@ class ConfigControllerTest extends WallabagCoreTestCase
 
         $crawler = $client->followRedirect();
 
-        $this->assertContains('flashes.config.notice.tagging_rules_updated', $crawler->filter('body')->extract(['_text'])[0]);
+        $this->assertStringContainsString('flashes.config.notice.tagging_rules_updated', $crawler->filter('body')->extract(['_text'])[0]);
 
-        $editLink = $crawler->filter('.mode_edit')->last()->link();
+        $editLink = $crawler->filter('div[id=set5] a.mode_edit')->last()->link();
 
         $crawler = $client->click($editLink);
         $this->assertSame(302, $client->getResponse()->getStatusCode());
-        $this->assertContains('?tagging-rule=', $client->getResponse()->headers->get('location'));
+        $this->assertStringContainsString('?tagging-rule=', $client->getResponse()->headers->get('location'));
 
         $crawler = $client->followRedirect();
 
@@ -461,17 +477,17 @@ class ConfigControllerTest extends WallabagCoreTestCase
 
         $crawler = $client->followRedirect();
 
-        $this->assertContains('flashes.config.notice.tagging_rules_updated', $crawler->filter('body')->extract(['_text'])[0]);
+        $this->assertStringContainsString('flashes.config.notice.tagging_rules_updated', $crawler->filter('body')->extract(['_text'])[0]);
 
-        $this->assertContains('readingTime <= 30', $crawler->filter('body')->extract(['_text'])[0]);
+        $this->assertStringContainsString('readingTime <= 30', $crawler->filter('body')->extract(['_text'])[0]);
 
-        $deleteLink = $crawler->filter('.delete')->last()->link();
+        $deleteLink = $crawler->filter('div[id=set5] a.delete')->last()->link();
 
         $crawler = $client->click($deleteLink);
         $this->assertSame(302, $client->getResponse()->getStatusCode());
 
         $crawler = $client->followRedirect();
-        $this->assertContains('flashes.config.notice.tagging_rules_deleted', $crawler->filter('body')->extract(['_text'])[0]);
+        $this->assertStringContainsString('flashes.config.notice.tagging_rules_deleted', $crawler->filter('body')->extract(['_text'])[0]);
     }
 
     public function dataForTaggingRuleFailed()
@@ -521,7 +537,7 @@ class ConfigControllerTest extends WallabagCoreTestCase
         $this->assertGreaterThan(1, $body = $crawler->filter('body')->extract(['_text']));
 
         foreach ($messages as $message) {
-            $this->assertContains($message, $body[0]);
+            $this->assertStringContainsString($message, $body[0]);
         }
     }
 
@@ -545,7 +561,7 @@ class ConfigControllerTest extends WallabagCoreTestCase
 
         $this->assertGreaterThan(1, $body = $crawler->filter('body')->extract(['_text']));
 
-        $this->assertContains('255 characters', $body[0]);
+        $this->assertStringContainsString('255 characters', $body[0]);
     }
 
     public function testDeletingTaggingRuleFromAnOtherUser()
@@ -557,11 +573,11 @@ class ConfigControllerTest extends WallabagCoreTestCase
             ->getRepository('WallabagCoreBundle:TaggingRule')
             ->findAll()[0];
 
-        $crawler = $client->request('GET', '/tagging-rule/edit/' . $rule->getId());
+        $crawler = $client->request('GET', '/tagging-rule/delete/' . $rule->getId());
 
         $this->assertSame(403, $client->getResponse()->getStatusCode());
         $this->assertGreaterThan(1, $body = $crawler->filter('body')->extract(['_text']));
-        $this->assertContains('You can not access this tagging rule', $body[0]);
+        $this->assertStringContainsString('You can not access this rule', $body[0]);
     }
 
     public function testEditingTaggingRuleFromAnOtherUser()
@@ -577,7 +593,144 @@ class ConfigControllerTest extends WallabagCoreTestCase
 
         $this->assertSame(403, $client->getResponse()->getStatusCode());
         $this->assertGreaterThan(1, $body = $crawler->filter('body')->extract(['_text']));
-        $this->assertContains('You can not access this tagging rule', $body[0]);
+        $this->assertStringContainsString('You can not access this rule', $body[0]);
+    }
+
+    public function testIgnoreOriginRuleCreation()
+    {
+        $this->logInAs('admin');
+        $client = $this->getClient();
+
+        $crawler = $client->request('GET', '/config');
+
+        $this->assertSame(200, $client->getResponse()->getStatusCode());
+
+        $form = $crawler->filter('button[id=ignore_origin_user_rule_save]')->form();
+
+        $data = [
+            'ignore_origin_user_rule[rule]' => 'host = "example.com"',
+        ];
+
+        $client->submit($form, $data);
+
+        $this->assertSame(302, $client->getResponse()->getStatusCode());
+
+        $crawler = $client->followRedirect();
+
+        $this->assertStringContainsString('flashes.config.notice.ignore_origin_rules_updated', $crawler->filter('body')->extract(['_text'])[0]);
+
+        $editLink = $crawler->filter('div[id=set6] a.mode_edit')->last()->link();
+
+        $crawler = $client->click($editLink);
+        $this->assertSame(302, $client->getResponse()->getStatusCode());
+        $this->assertStringContainsString('?ignore-origin-user-rule=', $client->getResponse()->headers->get('location'));
+
+        $crawler = $client->followRedirect();
+
+        $form = $crawler->filter('button[id=ignore_origin_user_rule_save]')->form();
+
+        $data = [
+            'ignore_origin_user_rule[rule]' => 'host = "example.org"',
+        ];
+
+        $client->submit($form, $data);
+
+        $this->assertSame(302, $client->getResponse()->getStatusCode());
+
+        $crawler = $client->followRedirect();
+
+        $this->assertStringContainsString('flashes.config.notice.ignore_origin_rules_updated', $crawler->filter('body')->extract(['_text'])[0]);
+
+        $this->assertStringContainsString('host = "example.org"', $crawler->filter('body')->extract(['_text'])[0]);
+
+        $deleteLink = $crawler->filter('div[id=set6] a.delete')->last()->link();
+
+        $crawler = $client->click($deleteLink);
+        $this->assertSame(302, $client->getResponse()->getStatusCode());
+
+        $crawler = $client->followRedirect();
+        $this->assertStringContainsString('flashes.config.notice.ignore_origin_rules_deleted', $crawler->filter('body')->extract(['_text'])[0]);
+    }
+
+    public function dataForIgnoreOriginRuleCreationFail()
+    {
+        return [
+            [
+                [
+                    'ignore_origin_user_rule[rule]' => 'foo = "bar"',
+                ],
+                [
+                    'The variable',
+                    'does not exist.',
+                ],
+            ],
+            [
+                [
+                    'ignore_origin_user_rule[rule]' => '_all != "none"',
+                ],
+                [
+                    'The operator',
+                    'does not exist.',
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider dataForIgnoreOriginRuleCreationFail
+     */
+    public function testIgnoreOriginRuleCreationFail($data, $messages)
+    {
+        $this->logInAs('admin');
+        $client = $this->getClient();
+
+        $crawler = $client->request('GET', '/config');
+
+        $this->assertSame(200, $client->getResponse()->getStatusCode());
+
+        $form = $crawler->filter('button[id=ignore_origin_user_rule_save]')->form();
+
+        $crawler = $client->submit($form, $data);
+
+        $this->assertSame(200, $client->getResponse()->getStatusCode());
+
+        $this->assertGreaterThan(1, $body = $crawler->filter('body')->extract(['_text']));
+
+        foreach ($messages as $message) {
+            $this->assertStringContainsString($message, $body[0]);
+        }
+    }
+
+    public function testDeletingIgnoreOriginRuleFromAnOtherUser()
+    {
+        $this->logInAs('bob');
+        $client = $this->getClient();
+
+        $rule = $client->getContainer()->get('doctrine.orm.entity_manager')
+            ->getRepository('WallabagCoreBundle:IgnoreOriginUserRule')
+            ->findAll()[0];
+
+        $crawler = $client->request('GET', '/ignore-origin-user-rule/edit/' . $rule->getId());
+
+        $this->assertSame(403, $client->getResponse()->getStatusCode());
+        $this->assertGreaterThan(1, $body = $crawler->filter('body')->extract(['_text']));
+        $this->assertStringContainsString('You can not access this rule', $body[0]);
+    }
+
+    public function testEditingIgnoreOriginRuleFromAnOtherUser()
+    {
+        $this->logInAs('bob');
+        $client = $this->getClient();
+
+        $rule = $client->getContainer()->get('doctrine.orm.entity_manager')
+            ->getRepository('WallabagCoreBundle:IgnoreOriginUserRule')
+            ->findAll()[0];
+
+        $crawler = $client->request('GET', '/ignore-origin-user-rule/edit/' . $rule->getId());
+
+        $this->assertSame(403, $client->getResponse()->getStatusCode());
+        $this->assertGreaterThan(1, $body = $crawler->filter('body')->extract(['_text']));
+        $this->assertStringContainsString('You can not access this rule', $body[0]);
     }
 
     public function testDemoMode()
@@ -604,7 +757,7 @@ class ConfigControllerTest extends WallabagCoreTestCase
         $client->submit($form, $data);
 
         $this->assertSame(302, $client->getResponse()->getStatusCode());
-        $this->assertContains('flashes.config.notice.password_not_updated_demo', $client->getContainer()->get('session')->getFlashBag()->get('notice')[0]);
+        $this->assertStringContainsString('flashes.config.notice.password_not_updated_demo', $client->getContainer()->get('session')->getFlashBag()->get('notice')[0]);
 
         $config->set('demo_mode_enabled', 0);
         $config->set('demo_mode_username', 'wallabag');
@@ -618,7 +771,7 @@ class ConfigControllerTest extends WallabagCoreTestCase
         $crawler = $client->request('GET', '/config');
 
         $this->assertGreaterThan(1, $body = $crawler->filter('body')->extract(['_text']));
-        $this->assertContains('config.form_user.delete.button', $body[0]);
+        $this->assertStringContainsString('config.form_user.delete.button', $body[0]);
 
         $em = $client->getContainer()->get('doctrine.orm.entity_manager');
 
@@ -639,7 +792,7 @@ class ConfigControllerTest extends WallabagCoreTestCase
         $crawler = $client->request('GET', '/config');
 
         $this->assertGreaterThan(1, $body = $crawler->filter('body')->extract(['_text']));
-        $this->assertNotContains('config.form_user.delete.button', $body[0]);
+        $this->assertStringNotContainsString('config.form_user.delete.button', $body[0]);
 
         $client->request('GET', '/account/delete');
         $this->assertSame(403, $client->getResponse()->getStatusCode());
@@ -659,6 +812,9 @@ class ConfigControllerTest extends WallabagCoreTestCase
         $em->flush();
     }
 
+    /**
+     * @group NetworkCalls
+     */
     public function testDeleteAccount()
     {
         $client = $this->getClient();
@@ -678,7 +834,7 @@ class ConfigControllerTest extends WallabagCoreTestCase
 
         $config->setTheme('material');
         $config->setItemsPerPage(30);
-        $config->setReadingSpeed(1);
+        $config->setReadingSpeed(200);
         $config->setLanguage('en');
         $config->setPocketConsumerKey('xxxxx');
 
@@ -742,7 +898,7 @@ class ConfigControllerTest extends WallabagCoreTestCase
         $em->persist($tag);
 
         $entry = new Entry($user);
-        $entry->setUrl('http://www.lemonde.fr/europe/article/2016/10/01/pour-le-psoe-chaque-election-s-est-transformee-en-une-agonie_5006476_3214.html');
+        $entry->setUrl('https://www.lemonde.fr/europe/article/2016/10/01/pour-le-psoe-chaque-election-s-est-transformee-en-une-agonie_5006476_3214.html');
         $entry->setContent('Youhou');
         $entry->setTitle('Youhou');
         $entry->addTag($tag);
@@ -772,7 +928,7 @@ class ConfigControllerTest extends WallabagCoreTestCase
         $crawler = $client->click($crawler->selectLink('config.reset.annotations')->link());
 
         $this->assertSame(302, $client->getResponse()->getStatusCode());
-        $this->assertContains('flashes.config.notice.annotations_reset', $client->getContainer()->get('session')->getFlashBag()->get('notice')[0]);
+        $this->assertStringContainsString('flashes.config.notice.annotations_reset', $client->getContainer()->get('session')->getFlashBag()->get('notice')[0]);
 
         $annotationsReset = $em
             ->getRepository('WallabagAnnotationBundle:Annotation')
@@ -788,7 +944,7 @@ class ConfigControllerTest extends WallabagCoreTestCase
         $crawler = $client->click($crawler->selectLink('config.reset.tags')->link());
 
         $this->assertSame(302, $client->getResponse()->getStatusCode());
-        $this->assertContains('flashes.config.notice.tags_reset', $client->getContainer()->get('session')->getFlashBag()->get('notice')[0]);
+        $this->assertStringContainsString('flashes.config.notice.tags_reset', $client->getContainer()->get('session')->getFlashBag()->get('notice')[0]);
 
         $tagReset = $em
             ->getRepository('WallabagCoreBundle:Tag')
@@ -804,7 +960,7 @@ class ConfigControllerTest extends WallabagCoreTestCase
         $crawler = $client->click($crawler->selectLink('config.reset.entries')->link());
 
         $this->assertSame(302, $client->getResponse()->getStatusCode());
-        $this->assertContains('flashes.config.notice.entries_reset', $client->getContainer()->get('session')->getFlashBag()->get('notice')[0]);
+        $this->assertStringContainsString('flashes.config.notice.entries_reset', $client->getContainer()->get('session')->getFlashBag()->get('notice')[0]);
 
         $entryReset = $em
             ->getRepository('WallabagCoreBundle:Entry')
@@ -827,7 +983,7 @@ class ConfigControllerTest extends WallabagCoreTestCase
         $em->persist($tag);
 
         $entry = new Entry($user);
-        $entry->setUrl('http://www.lemonde.fr/europe/article/2016/10/01/pour-le-psoe-chaque-election-s-est-transformee-en-une-agonie_5006476_3214.html');
+        $entry->setUrl('https://www.lemonde.fr/europe/article/2016/10/01/pour-le-psoe-chaque-election-s-est-transformee-en-une-agonie_5006476_3214.html');
         $entry->setContent('Youhou');
         $entry->setTitle('Youhou');
         $entry->addTag($tag);
@@ -845,11 +1001,11 @@ class ConfigControllerTest extends WallabagCoreTestCase
         $em->persist($tagArchived);
 
         $entryArchived = new Entry($user);
-        $entryArchived->setUrl('http://www.lemonde.fr/europe/article/2016/10/01/pour-le-psoe-chaque-election-s-est-transformee-en-une-agonie_5006476_3214.html');
+        $entryArchived->setUrl('https://www.lemonde.fr/europe/article/2016/10/01/pour-le-psoe-chaque-election-s-est-transformee-en-une-agonie_5006476_3214.html');
         $entryArchived->setContent('Youhou');
         $entryArchived->setTitle('Youhou');
         $entryArchived->addTag($tagArchived);
-        $entryArchived->setArchived(true);
+        $entryArchived->updateArchived(true);
         $em->persist($entryArchived);
 
         $annotationArchived = new Annotation($user);
@@ -868,7 +1024,7 @@ class ConfigControllerTest extends WallabagCoreTestCase
         $crawler = $client->click($crawler->selectLink('config.reset.archived')->link());
 
         $this->assertSame(302, $client->getResponse()->getStatusCode());
-        $this->assertContains('flashes.config.notice.archived_reset', $client->getContainer()->get('session')->getFlashBag()->get('notice')[0]);
+        $this->assertStringContainsString('flashes.config.notice.archived_reset', $client->getContainer()->get('session')->getFlashBag()->get('notice')[0]);
 
         $entryReset = $em
             ->getRepository('WallabagCoreBundle:Entry')
@@ -903,7 +1059,7 @@ class ConfigControllerTest extends WallabagCoreTestCase
         $em->persist($tag);
 
         $entry = new Entry($user);
-        $entry->setUrl('http://www.lemonde.fr/europe/article/2016/10/01/pour-le-psoe-chaque-election-s-est-transformee-en-une-agonie_5006476_3214.html');
+        $entry->setUrl('https://www.lemonde.fr/europe/article/2016/10/01/pour-le-psoe-chaque-election-s-est-transformee-en-une-agonie_5006476_3214.html');
         $entry->setContent('Youhou');
         $entry->setTitle('Youhou');
         $entry->addTag($tag);
@@ -925,7 +1081,7 @@ class ConfigControllerTest extends WallabagCoreTestCase
         $crawler = $client->click($crawler->selectLink('config.reset.entries')->link());
 
         $this->assertSame(302, $client->getResponse()->getStatusCode());
-        $this->assertContains('flashes.config.notice.entries_reset', $client->getContainer()->get('session')->getFlashBag()->get('notice')[0]);
+        $this->assertStringContainsString('flashes.config.notice.entries_reset', $client->getContainer()->get('session')->getFlashBag()->get('notice')[0]);
 
         $entryReset = $em
             ->getRepository('WallabagCoreBundle:Entry')
@@ -954,15 +1110,241 @@ class ConfigControllerTest extends WallabagCoreTestCase
 
         $client->request('GET', '/unread/list');
 
-        $this->assertNotContains('listmode', $client->getResponse()->getContent());
+        $this->assertStringNotContainsString('listmode', $client->getResponse()->getContent());
 
         $client->request('GET', '/config/view-mode');
         $crawler = $client->followRedirect();
 
         $client->request('GET', '/unread/list');
 
-        $this->assertContains('listmode', $client->getResponse()->getContent());
+        $this->assertStringContainsString('listmode', $client->getResponse()->getContent());
 
         $client->request('GET', '/config/view-mode');
+    }
+
+    public function testChangeLocaleWithoutReferer()
+    {
+        $client = $this->getClient();
+
+        $client->request('GET', '/locale/de');
+        $client->followRedirect();
+
+        $this->assertSame('de', $client->getRequest()->getLocale());
+        $this->assertSame('de', $client->getContainer()->get('session')->get('_locale'));
+    }
+
+    public function testChangeLocaleWithReferer()
+    {
+        $client = $this->getClient();
+
+        $client->request('GET', '/login');
+        $client->request('GET', '/locale/de');
+        $client->followRedirect();
+
+        $this->assertSame('de', $client->getRequest()->getLocale());
+        $this->assertSame('de', $client->getContainer()->get('session')->get('_locale'));
+    }
+
+    public function testChangeLocaleToBadLocale()
+    {
+        $client = $this->getClient();
+
+        $client->request('GET', '/login');
+        $client->request('GET', '/locale/yuyuyuyu');
+        $client->followRedirect();
+
+        $this->assertNotSame('yuyuyuyu', $client->getRequest()->getLocale());
+        $this->assertNotSame('yuyuyuyu', $client->getContainer()->get('session')->get('_locale'));
+    }
+
+    public function testUserEnable2faEmail()
+    {
+        $this->logInAs('admin');
+        $client = $this->getClient();
+
+        $crawler = $client->request('GET', '/config/otp/email');
+
+        $this->assertSame(302, $client->getResponse()->getStatusCode());
+
+        $crawler = $client->followRedirect();
+
+        $this->assertGreaterThan(1, $alert = $crawler->filter('body')->extract(['_text']));
+        $this->assertStringContainsString('flashes.config.notice.otp_enabled', $alert[0]);
+
+        // restore user
+        $em = $this->getEntityManager();
+        $user = $em
+            ->getRepository('WallabagUserBundle:User')
+            ->findOneByUsername('admin');
+
+        $this->assertTrue($user->isEmailTwoFactor());
+
+        $user->setEmailTwoFactor(false);
+        $em->persist($user);
+        $em->flush();
+    }
+
+    public function testUserDisable2faEmail()
+    {
+        $this->logInAs('admin');
+        $client = $this->getClient();
+
+        $crawler = $client->request('GET', '/config/otp/email/disable');
+
+        $this->assertSame(302, $client->getResponse()->getStatusCode());
+
+        $crawler = $client->followRedirect();
+
+        $this->assertGreaterThan(1, $alert = $crawler->filter('body')->extract(['_text']));
+        $this->assertStringContainsString('flashes.config.notice.otp_disabled', $alert[0]);
+
+        // restore user
+        $em = $this->getEntityManager();
+        $user = $em
+            ->getRepository('WallabagUserBundle:User')
+            ->findOneByUsername('admin');
+
+        $this->assertFalse($user->isEmailTwoFactor());
+    }
+
+    public function testUserEnable2faGoogle()
+    {
+        $this->logInAs('admin');
+        $client = $this->getClient();
+
+        $crawler = $client->request('GET', '/config/otp/app');
+
+        $this->assertSame(200, $client->getResponse()->getStatusCode());
+
+        // restore user
+        $em = $this->getEntityManager();
+        $user = $em
+            ->getRepository('WallabagUserBundle:User')
+            ->findOneByUsername('admin');
+
+        $this->assertTrue($user->isGoogleTwoFactor());
+        $this->assertGreaterThan(0, $user->getBackupCodes());
+
+        $user->setGoogleAuthenticatorSecret(false);
+        $user->setBackupCodes(null);
+        $em->persist($user);
+        $em->flush();
+    }
+
+    public function testUserEnable2faGoogleCancel()
+    {
+        $this->logInAs('admin');
+        $client = $this->getClient();
+
+        $crawler = $client->request('GET', '/config/otp/app');
+
+        $this->assertSame(200, $client->getResponse()->getStatusCode());
+
+        // restore user
+        $em = $this->getEntityManager();
+        $user = $em
+            ->getRepository('WallabagUserBundle:User')
+            ->findOneByUsername('admin');
+
+        $this->assertTrue($user->isGoogleTwoFactor());
+        $this->assertGreaterThan(0, $user->getBackupCodes());
+
+        $crawler = $client->request('GET', '/config/otp/app/cancel');
+
+        $this->assertSame(302, $client->getResponse()->getStatusCode());
+
+        $user = $em
+            ->getRepository('WallabagUserBundle:User')
+            ->findOneByUsername('admin');
+
+        $this->assertFalse($user->isGoogleTwoFactor());
+        $this->assertEmpty($user->getBackupCodes());
+    }
+
+    public function testUserDisable2faGoogle()
+    {
+        $this->logInAs('admin');
+        $client = $this->getClient();
+
+        $crawler = $client->request('GET', '/config/otp/app/disable');
+
+        $this->assertSame(302, $client->getResponse()->getStatusCode());
+
+        $crawler = $client->followRedirect();
+
+        $this->assertGreaterThan(1, $alert = $crawler->filter('body')->extract(['_text']));
+        $this->assertStringContainsString('flashes.config.notice.otp_disabled', $alert[0]);
+
+        // restore user
+        $em = $this->getEntityManager();
+        $user = $em
+            ->getRepository('WallabagUserBundle:User')
+            ->findOneByUsername('admin');
+
+        $this->assertEmpty($user->getGoogleAuthenticatorSecret());
+        $this->assertEmpty($user->getBackupCodes());
+    }
+
+    public function testExportTaggingRule()
+    {
+        $this->logInAs('admin');
+        $client = $this->getClient();
+
+        ob_start();
+        $crawler = $client->request('GET', '/tagging-rule/export');
+        ob_end_clean();
+
+        $this->assertSame(200, $client->getResponse()->getStatusCode());
+
+        $headers = $client->getResponse()->headers;
+        $this->assertSame('application/json', $headers->get('content-type'));
+        $this->assertSame('attachment; filename="tagging_rules_admin.json"', $headers->get('content-disposition'));
+        $this->assertSame('UTF-8', $headers->get('content-transfer-encoding'));
+
+        $content = json_decode($client->getResponse()->getContent(), true);
+
+        $this->assertCount(4, $content);
+        $this->assertSame('content matches "spurs"', $content[0]['rule']);
+        $this->assertSame('sport', $content[0]['tags'][0]);
+    }
+
+    public function testImportTagginfRuleBadFile()
+    {
+        $this->logInAs('admin');
+        $client = $this->getClient();
+
+        $crawler = $client->request('GET', '/config');
+        $form = $crawler->filter('form[name=upload_tagging_rule_file] > button[type=submit]')->form();
+
+        $data = [
+            'upload_tagging_rule_file[file]' => '',
+        ];
+
+        $client->submit($form, $data);
+
+        $this->assertSame(302, $client->getResponse()->getStatusCode());
+    }
+
+    public function testImportTagginfRuleFile()
+    {
+        $this->logInAs('admin');
+        $client = $this->getClient();
+
+        $crawler = $client->request('GET', '/config');
+        $form = $crawler->filter('form[name=upload_tagging_rule_file] > button[type=submit]')->form();
+
+        $file = new UploadedFile(__DIR__ . '/../fixtures/tagging_rules_admin.json', 'tagging_rules_admin.json');
+
+        $data = [
+            'upload_tagging_rule_file[file]' => $file,
+        ];
+
+        $client->submit($form, $data);
+        $this->assertSame(302, $client->getResponse()->getStatusCode());
+
+        $user = $client->getContainer()->get('fos_user.user_manager.test')->findUserBy(['username' => 'admin']);
+        $taggingRules = $user->getConfig()->getTaggingRules()->toArray();
+        $this->assertCount(5, $taggingRules);
+        $this->assertSame('title matches "football"', $taggingRules[4]->getRule());
     }
 }

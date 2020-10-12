@@ -18,7 +18,19 @@ use Wallabag\CoreBundle\Command\InstallCommand;
 
 class InstallCommandTest extends WallabagCoreTestCase
 {
-    public function setUp()
+    public static function setUpBeforeClass(): void
+    {
+        // disable doctrine-test-bundle
+        StaticDriver::setKeepStaticConnections(false);
+    }
+
+    public static function tearDownAfterClass(): void
+    {
+        // enable doctrine-test-bundle
+        StaticDriver::setKeepStaticConnections(true);
+    }
+
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -51,17 +63,15 @@ class InstallCommandTest extends WallabagCoreTestCase
             parent::setUp();
         }
 
-        // disable doctrine-test-bundle
-        StaticDriver::setKeepStaticConnections(false);
-
         $this->resetDatabase($this->getClient());
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         $databasePath = getenv('TEST_DATABASE_PATH');
         // Remove variable environnement
         putenv('TEST_DATABASE_PATH');
+
         if ($databasePath && file_exists($databasePath)) {
             unlink($databasePath);
         } else {
@@ -71,8 +81,6 @@ class InstallCommandTest extends WallabagCoreTestCase
             $this->resetDatabase($client);
         }
 
-        // enable doctrine-test-bundle
-        StaticDriver::setKeepStaticConnections(true);
         parent::tearDown();
     }
 
@@ -95,10 +103,10 @@ class InstallCommandTest extends WallabagCoreTestCase
             'command' => $command->getName(),
         ]);
 
-        $this->assertContains('Checking system requirements.', $tester->getDisplay());
-        $this->assertContains('Setting up database.', $tester->getDisplay());
-        $this->assertContains('Administration setup.', $tester->getDisplay());
-        $this->assertContains('Config setup.', $tester->getDisplay());
+        $this->assertStringContainsString('Checking system requirements.', $tester->getDisplay());
+        $this->assertStringContainsString('Setting up database.', $tester->getDisplay());
+        $this->assertStringContainsString('Administration setup.', $tester->getDisplay());
+        $this->assertStringContainsString('Config setup.', $tester->getDisplay());
     }
 
     public function testRunInstallCommandWithReset()
@@ -120,14 +128,14 @@ class InstallCommandTest extends WallabagCoreTestCase
             '--reset' => true,
         ]);
 
-        $this->assertContains('Checking system requirements.', $tester->getDisplay());
-        $this->assertContains('Setting up database.', $tester->getDisplay());
-        $this->assertContains('Dropping database, creating database and schema, clearing the cache', $tester->getDisplay());
-        $this->assertContains('Administration setup.', $tester->getDisplay());
-        $this->assertContains('Config setup.', $tester->getDisplay());
+        $this->assertStringContainsString('Checking system requirements.', $tester->getDisplay());
+        $this->assertStringContainsString('Setting up database.', $tester->getDisplay());
+        $this->assertStringContainsString('Dropping database, creating database and schema, clearing the cache', $tester->getDisplay());
+        $this->assertStringContainsString('Administration setup.', $tester->getDisplay());
+        $this->assertStringContainsString('Config setup.', $tester->getDisplay());
 
         // we force to reset everything
-        $this->assertContains('Dropping database, creating database and schema, clearing the cache', $tester->getDisplay());
+        $this->assertStringContainsString('Dropping database, creating database and schema, clearing the cache', $tester->getDisplay());
     }
 
     public function testRunInstallCommandWithDatabaseRemoved()
@@ -166,13 +174,13 @@ class InstallCommandTest extends WallabagCoreTestCase
             'command' => $command->getName(),
         ]);
 
-        $this->assertContains('Checking system requirements.', $tester->getDisplay());
-        $this->assertContains('Setting up database.', $tester->getDisplay());
-        $this->assertContains('Administration setup.', $tester->getDisplay());
-        $this->assertContains('Config setup.', $tester->getDisplay());
+        $this->assertStringContainsString('Checking system requirements.', $tester->getDisplay());
+        $this->assertStringContainsString('Setting up database.', $tester->getDisplay());
+        $this->assertStringContainsString('Administration setup.', $tester->getDisplay());
+        $this->assertStringContainsString('Config setup.', $tester->getDisplay());
 
         // the current database doesn't already exist
-        $this->assertContains('Creating database and schema, clearing the cache', $tester->getDisplay());
+        $this->assertStringContainsString('Creating database and schema, clearing the cache', $tester->getDisplay());
     }
 
     public function testRunInstallCommandChooseResetSchema()
@@ -192,12 +200,12 @@ class InstallCommandTest extends WallabagCoreTestCase
             'command' => $command->getName(),
         ]);
 
-        $this->assertContains('Checking system requirements.', $tester->getDisplay());
-        $this->assertContains('Setting up database.', $tester->getDisplay());
-        $this->assertContains('Administration setup.', $tester->getDisplay());
-        $this->assertContains('Config setup.', $tester->getDisplay());
+        $this->assertStringContainsString('Checking system requirements.', $tester->getDisplay());
+        $this->assertStringContainsString('Setting up database.', $tester->getDisplay());
+        $this->assertStringContainsString('Administration setup.', $tester->getDisplay());
+        $this->assertStringContainsString('Config setup.', $tester->getDisplay());
 
-        $this->assertContains('Dropping schema and creating schema', $tester->getDisplay());
+        $this->assertStringContainsString('Dropping schema and creating schema', $tester->getDisplay());
     }
 
     public function testRunInstallCommandChooseNothing()
@@ -236,12 +244,12 @@ class InstallCommandTest extends WallabagCoreTestCase
             'command' => $command->getName(),
         ]);
 
-        $this->assertContains('Checking system requirements.', $tester->getDisplay());
-        $this->assertContains('Setting up database.', $tester->getDisplay());
-        $this->assertContains('Administration setup.', $tester->getDisplay());
-        $this->assertContains('Config setup.', $tester->getDisplay());
+        $this->assertStringContainsString('Checking system requirements.', $tester->getDisplay());
+        $this->assertStringContainsString('Setting up database.', $tester->getDisplay());
+        $this->assertStringContainsString('Administration setup.', $tester->getDisplay());
+        $this->assertStringContainsString('Config setup.', $tester->getDisplay());
 
-        $this->assertContains('Creating schema', $tester->getDisplay());
+        $this->assertStringContainsString('Creating schema', $tester->getDisplay());
     }
 
     public function testRunInstallCommandNoInteraction()
@@ -258,9 +266,9 @@ class InstallCommandTest extends WallabagCoreTestCase
             'interactive' => false,
         ]);
 
-        $this->assertContains('Checking system requirements.', $tester->getDisplay());
-        $this->assertContains('Setting up database.', $tester->getDisplay());
-        $this->assertContains('Administration setup.', $tester->getDisplay());
-        $this->assertContains('Config setup.', $tester->getDisplay());
+        $this->assertStringContainsString('Checking system requirements.', $tester->getDisplay());
+        $this->assertStringContainsString('Setting up database.', $tester->getDisplay());
+        $this->assertStringContainsString('Administration setup.', $tester->getDisplay());
+        $this->assertStringContainsString('Config setup.', $tester->getDisplay());
     }
 }

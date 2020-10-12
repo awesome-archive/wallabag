@@ -3,9 +3,13 @@
 namespace Tests\Wallabag\CoreBundle\Controller;
 
 use Tests\Wallabag\CoreBundle\WallabagCoreTestCase;
+use Wallabag\CoreBundle\Entity\Entry;
 
 class ExportControllerTest extends WallabagCoreTestCase
 {
+    private $adminEntry;
+    private $bobEntry;
+
     public function testLogin()
     {
         $client = $this->getClient();
@@ -13,7 +17,7 @@ class ExportControllerTest extends WallabagCoreTestCase
         $client->request('GET', '/export/unread.csv');
 
         $this->assertSame(302, $client->getResponse()->getStatusCode());
-        $this->assertContains('login', $client->getResponse()->headers->get('location'));
+        $this->assertStringContainsString('login', $client->getResponse()->headers->get('location'));
     }
 
     public function testUnknownCategoryExport()
@@ -98,7 +102,7 @@ class ExportControllerTest extends WallabagCoreTestCase
 
         $headers = $client->getResponse()->headers;
         $this->assertSame('application/x-mobipocket-ebook', $headers->get('content-type'));
-        $this->assertSame('attachment; filename="' . preg_replace('/[^A-Za-z0-9\-]/', '', $content->getTitle()) . '.mobi"', $headers->get('content-disposition'));
+        $this->assertSame('attachment; filename="' . $this->getSanitizedFilename($content->getTitle()) . '.mobi"', $headers->get('content-disposition'));
         $this->assertSame('binary', $headers->get('content-transfer-encoding'));
     }
 
@@ -126,7 +130,7 @@ class ExportControllerTest extends WallabagCoreTestCase
 
         $headers = $client->getResponse()->headers;
         $this->assertSame('application/pdf', $headers->get('content-type'));
-        $this->assertSame('attachment; filename="Tag_entries articles.pdf"', $headers->get('content-disposition'));
+        $this->assertSame('attachment; filename="Tag foo bar articles.pdf"', $headers->get('content-disposition'));
         $this->assertSame('binary', $headers->get('content-transfer-encoding'));
     }
 
@@ -180,17 +184,17 @@ class ExportControllerTest extends WallabagCoreTestCase
 
         $this->assertGreaterThan(1, $csv);
         // +1 for title line
-        $this->assertSame(count($contentInDB) + 1, count($csv));
+        $this->assertCount(\count($contentInDB) + 1, $csv);
         $this->assertSame('Title;URL;Content;Tags;"MIME Type";Language;"Creation date"', $csv[0]);
-        $this->assertContains($contentInDB[0]['title'], $csv[1]);
-        $this->assertContains($contentInDB[0]['url'], $csv[1]);
-        $this->assertContains($contentInDB[0]['content'], $csv[1]);
-        $this->assertContains($contentInDB[0]['mimetype'], $csv[1]);
-        $this->assertContains($contentInDB[0]['language'], $csv[1]);
-        $this->assertContains($contentInDB[0]['createdAt']->format('d/m/Y h:i:s'), $csv[1]);
+        $this->assertStringContainsString($contentInDB[0]['title'], $csv[1]);
+        $this->assertStringContainsString($contentInDB[0]['url'], $csv[1]);
+        $this->assertStringContainsString($contentInDB[0]['content'], $csv[1]);
+        $this->assertStringContainsString($contentInDB[0]['mimetype'], $csv[1]);
+        $this->assertStringContainsString($contentInDB[0]['language'], $csv[1]);
+        $this->assertStringContainsString($contentInDB[0]['createdAt']->format('d/m/Y h:i:s'), $csv[1]);
 
         foreach ($contentInDB[0]['tags'] as $tag) {
-            $this->assertContains($tag['label'], $csv[1]);
+            $this->assertStringContainsString($tag['label'], $csv[1]);
         }
     }
 
@@ -212,7 +216,7 @@ class ExportControllerTest extends WallabagCoreTestCase
 
         $headers = $client->getResponse()->headers;
         $this->assertSame('application/json', $headers->get('content-type'));
-        $this->assertSame('attachment; filename="' . $contentInDB->getTitle() . '.json"', $headers->get('content-disposition'));
+        $this->assertSame('attachment; filename="' . $this->getSanitizedFilename($contentInDB->getTitle()) . '.json"', $headers->get('content-disposition'));
         $this->assertSame('UTF-8', $headers->get('content-transfer-encoding'));
 
         $content = json_decode($client->getResponse()->getContent(), true);
@@ -241,6 +245,30 @@ class ExportControllerTest extends WallabagCoreTestCase
         $this->assertSame($contentInDB->getDomainname(), $content[0]['domain_name']);
         $this->assertContains('baz', $content[0]['tags']);
         $this->assertContains('foo', $content[0]['tags']);
+    }
+
+    public function testJsonExportFromSearch()
+    {
+        $this->setUpForJsonExportFromSearch();
+
+        $this->logInAs('admin');
+        $client = $this->getClient();
+
+        ob_start();
+        $crawler = $client->request('GET', '/export/search.json?search_entry[term]=entry+search&currentRoute=homepage');
+        ob_end_clean();
+
+        $this->assertSame(200, $client->getResponse()->getStatusCode());
+
+        $headers = $client->getResponse()->headers;
+        $this->assertSame('application/json', $headers->get('content-type'));
+        $this->assertSame('attachment; filename="Search entry search articles.json"', $headers->get('content-disposition'));
+        $this->assertSame('UTF-8', $headers->get('content-transfer-encoding'));
+
+        $content = json_decode($client->getResponse()->getContent(), true);
+        $this->assertCount(1, $content);
+
+        $this->tearDownForJsonExportFromSearch();
     }
 
     public function testXmlExport()
@@ -272,7 +300,7 @@ class ExportControllerTest extends WallabagCoreTestCase
 
         $content = new \SimpleXMLElement($client->getResponse()->getContent());
         $this->assertGreaterThan(0, $content->count());
-        $this->assertSame(count($contentInDB), $content->count());
+        $this->assertCount(\count($contentInDB), $content);
         $this->assertNotEmpty('id', (string) $content->entry[0]->id);
         $this->assertNotEmpty('title', (string) $content->entry[0]->title);
         $this->assertNotEmpty('url', (string) $content->entry[0]->url);
@@ -280,5 +308,45 @@ class ExportControllerTest extends WallabagCoreTestCase
         $this->assertNotEmpty('domain_name', (string) $content->entry[0]->domain_name);
         $this->assertNotEmpty('created_at', (string) $content->entry[0]->created_at);
         $this->assertNotEmpty('updated_at', (string) $content->entry[0]->updated_at);
+    }
+
+    private function setUpForJsonExportFromSearch()
+    {
+        $client = $this->getClient();
+        $em = $this->getEntityManager();
+
+        $userRepository = $client->getContainer()
+            ->get('wallabag_user.user_repository.test');
+
+        $user = $userRepository->findOneByUserName('admin');
+        $this->adminEntry = new Entry($user);
+        $this->adminEntry->setUrl('http://0.0.0.0/entry-search-admin');
+        $this->adminEntry->setTitle('test title entry search admin');
+        $this->adminEntry->setContent('this is my content /o/');
+        $em->persist($this->adminEntry);
+
+        $user = $userRepository->findOneByUserName('bob');
+        $this->bobEntry = new Entry($user);
+        $this->bobEntry->setUrl('http://0.0.0.0/entry-search-bob');
+        $this->bobEntry->setTitle('test title entry search bob');
+        $this->bobEntry->setContent('this is my content /o/');
+        $em->persist($this->bobEntry);
+
+        $em->flush();
+    }
+
+    private function tearDownForJsonExportFromSearch()
+    {
+        $em = $this->getEntityManager();
+
+        $em->remove($this->adminEntry);
+        $em->remove($this->bobEntry);
+
+        $em->flush();
+    }
+
+    private function getSanitizedFilename($title)
+    {
+        return preg_replace('/[^A-Za-z0-9\- \']/', '', iconv('utf-8', 'us-ascii//TRANSLIT', $title));
     }
 }

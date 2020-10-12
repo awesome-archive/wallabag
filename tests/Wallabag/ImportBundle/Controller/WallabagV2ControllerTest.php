@@ -81,7 +81,7 @@ class WallabagV2ControllerTest extends WallabagCoreTestCase
         $crawler = $client->followRedirect();
 
         $this->assertGreaterThan(1, $body = $crawler->filter('body')->extract(['_text']));
-        $this->assertContains('flashes.import.notice.summary', $body[0]);
+        $this->assertStringContainsString('flashes.import.notice.summary', $body[0]);
 
         $this->assertNotEmpty($client->getContainer()->get('wallabag_core.redis.client')->lpop('wallabag.import.wallabag_v2'));
 
@@ -109,26 +109,26 @@ class WallabagV2ControllerTest extends WallabagCoreTestCase
         $crawler = $client->followRedirect();
 
         $this->assertGreaterThan(1, $body = $crawler->filter('body')->extract(['_text']));
-        $this->assertContains('flashes.import.notice.summary', $body[0]);
+        $this->assertStringContainsString('flashes.import.notice.summary', $body[0]);
 
         $content = $client->getContainer()
             ->get('doctrine.orm.entity_manager')
             ->getRepository('WallabagCoreBundle:Entry')
             ->findByUrlAndUserId(
-                'http://www.liberation.fr/planete/2015/10/26/refugies-l-ue-va-creer-100-000-places-d-accueil-dans-les-balkans_1408867',
+                'https://www.liberation.fr/planete/2015/10/26/refugies-l-ue-va-creer-100-000-places-d-accueil-dans-les-balkans_1408867',
                 $this->getLoggedInUserId()
             );
 
         $this->assertInstanceOf('Wallabag\CoreBundle\Entity\Entry', $content);
 
         // empty because it wasn't re-imported
-        $this->assertEmpty($content->getMimetype(), 'Mimetype for http://www.liberation.fr is empty');
-        $this->assertEmpty($content->getPreviewPicture(), 'Preview picture for http://www.liberation.fr is empty');
-        $this->assertEmpty($content->getLanguage(), 'Language for http://www.liberation.fr is empty');
+        $this->assertEmpty($content->getMimetype(), 'Mimetype for https://www.liberation.fr is empty');
+        $this->assertEmpty($content->getPreviewPicture(), 'Preview picture for https://www.liberation.fr is empty');
+        $this->assertEmpty($content->getLanguage(), 'Language for https://www.liberation.fr is empty');
 
         $tags = $content->getTags();
         $this->assertContains('foot', $tags, 'It includes the "foot" tag');
-        $this->assertSame(1, count($tags));
+        $this->assertCount(1, $tags);
 
         $content = $client->getContainer()
             ->get('doctrine.orm.entity_manager')
@@ -147,7 +147,7 @@ class WallabagV2ControllerTest extends WallabagCoreTestCase
         $this->assertContains('foot', $tags, 'It includes the "foot" tag');
         $this->assertContains('mediapart', $tags, 'It includes the "mediapart" tag');
         $this->assertContains('blog', $tags, 'It includes the "blog" tag');
-        $this->assertSame(3, count($tags));
+        $this->assertCount(3, $tags);
 
         $this->assertInstanceOf(\DateTime::class, $content->getCreatedAt());
         $this->assertSame('2016-09-08', $content->getCreatedAt()->format('Y-m-d'));
@@ -175,6 +175,6 @@ class WallabagV2ControllerTest extends WallabagCoreTestCase
         $crawler = $client->followRedirect();
 
         $this->assertGreaterThan(1, $body = $crawler->filter('body')->extract(['_text']));
-        $this->assertContains('flashes.import.notice.failed', $body[0]);
+        $this->assertStringContainsString('flashes.import.notice.failed', $body[0]);
     }
 }

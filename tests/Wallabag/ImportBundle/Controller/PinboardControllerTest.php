@@ -80,7 +80,7 @@ class PinboardControllerTest extends WallabagCoreTestCase
         $crawler = $client->followRedirect();
 
         $this->assertGreaterThan(1, $body = $crawler->filter('body')->extract(['_text']));
-        $this->assertContains('flashes.import.notice.summary', $body[0]);
+        $this->assertStringContainsString('flashes.import.notice.summary', $body[0]);
 
         $this->assertNotEmpty($client->getContainer()->get('wallabag_core.redis.client')->lpop('wallabag.import.pinboard'));
 
@@ -116,7 +116,7 @@ class PinboardControllerTest extends WallabagCoreTestCase
             );
 
         $this->assertGreaterThan(1, $body = $crawler->filter('body')->extract(['_text']));
-        $this->assertContains('flashes.import.notice.summary', $body[0]);
+        $this->assertStringContainsString('flashes.import.notice.summary', $body[0]);
 
         $this->assertInstanceOf('Wallabag\CoreBundle\Entity\Entry', $content);
         $this->assertNotEmpty($content->getMimetype(), 'Mimetype for https://ma.ttias.be is ok');
@@ -127,7 +127,7 @@ class PinboardControllerTest extends WallabagCoreTestCase
         $this->assertContains('foot', $tags, 'It includes the "foot" tag');
         $this->assertContains('varnish', $tags, 'It includes the "varnish" tag');
         $this->assertContains('php', $tags, 'It includes the "php" tag');
-        $this->assertSame(3, count($tags));
+        $this->assertCount(3, $tags);
 
         $this->assertInstanceOf(\DateTime::class, $content->getCreatedAt());
         $this->assertSame('2016-10-26', $content->getCreatedAt()->format('Y-m-d'));
@@ -177,7 +177,7 @@ class PinboardControllerTest extends WallabagCoreTestCase
         $this->assertTrue($content2->isArchived());
 
         $this->assertGreaterThan(1, $body = $crawler->filter('body')->extract(['_text']));
-        $this->assertContains('flashes.import.notice.summary', $body[0]);
+        $this->assertStringContainsString('flashes.import.notice.summary', $body[0]);
     }
 
     public function testImportPinboardWithEmptyFile()
@@ -201,6 +201,6 @@ class PinboardControllerTest extends WallabagCoreTestCase
         $crawler = $client->followRedirect();
 
         $this->assertGreaterThan(1, $body = $crawler->filter('body')->extract(['_text']));
-        $this->assertContains('flashes.import.notice.failed', $body[0]);
+        $this->assertStringContainsString('flashes.import.notice.failed', $body[0]);
     }
 }

@@ -13,7 +13,6 @@ security:
     register:
         page_title: 'สร้างบัญชึของคุณ'
         go_to_account: 'ไปยังบัญชีของคุณ'
-
 menu:
     left:
         unread: 'ยังไม่ได้อ่าน'
@@ -33,6 +32,7 @@ menu:
         back_to_unread: 'กลับไปยังรายการที่ไม่ได้อ่าน'
         users_management: 'การจัดการผู้ใช้'
         site_credentials: 'การรับรองไซต์'
+        quickstart: "เริ่มแบบด่วน"
     top:
         add_new_entry: 'เพิ่มรายการใหม่'
         search: 'ค้นหา'
@@ -40,7 +40,6 @@ menu:
         export: 'นำข้อมูลออก'
     search_form:
         input_label: 'ค้นหาที่นี้'
-
 footer:
     wallabag:
         elsewhere: 'การใช้ wallabag กับคุณ'
@@ -48,16 +47,16 @@ footer:
         powered_by: 'สนับสนุนโดย'
         about: 'เกี่ยวกับ'
     stats: ตั้งแต่ %user_creation% ที่คุณอ่านรายการ %nb_archives% นี้จะเกี่ยวกับ %per_day% ของวันนั้น!
-
 config:
     page_title: 'กำหนดค่า'
     tab_menu:
         settings: 'ตั้งค่า'
-        rss: 'RSS'
+        feed: 'RSS'
         user_info: 'ข้อมูลผู้ใช้'
         password: 'รหัสผ่าน'
         rules: 'การแท็กข้อบังคับ'
         new_user: 'เพิ่มผู้ใช้'
+        reset: 'รีเซ็ตพื้นที่'
     form:
         save: 'บันทึก'
     form_settings:
@@ -65,12 +64,8 @@ config:
         items_per_page_label: 'ไอเทมต่อหน้า'
         language_label: 'ภาษา'
         reading_speed:
-            label: 'การอ่านแบบด่วน'
+            label: 'การอ่านแบบด่วน (คำต่อนาที)'
             help_message: 'คุณสามารถใช้เครื่องมือออนไลน์เพื่อประเมินการอ่านแบบด่วน:'
-            100_word: 'ฉันอ่าน ~100 คำต่อนาที'
-            200_word: 'ฉันอ่าน ~200 คำต่อนาท'
-            300_word: 'ฉันอ่าน ~300 คำต่อนาท'
-            400_word: 'ฉันอ่าน ~400 คำต่อนาท'
         action_mark_as_read:
             label: 'คุณต้องการเปลี่ยนทิศทางหลังจากระบุเครื่องหมายรายการอ่านที่ไหน?'
             redirect_homepage: 'ไปยังโฮมเพจ'
@@ -83,25 +78,22 @@ config:
         help_reading_speed: "wallabag จะคำนวณเวลาการอ่านในแต่ละรายการซึ่งคุณสามารถกำหนดได้ที่นี้,ต้องขอบคุณรายการนี้,หากคุณเป็นนักอ่านที่เร็วหรือช้า wallabag จะทำการคำนวณเวลาที่อ่านใหม่ในแต่ละรายการ"
         help_language: "คุณสามารถเปลี่ยภาษาของ wallabag interface ได้"
         help_pocket_consumer_key: "การ้องขอการเก็บการนำข้อมูลเข้า คุณสามารถสร้างบัญชีการเก็บของคุณ"
-    form_rss:
+    form_feed:
         description: 'RSS จะเก็บเงื่อนไขโดย wallabag ต้องยอมรับการอ่านรายการของคุณกับผู้อ่านที่ชอบ RSS คุณต้องทำเครื่องหมายก่อน'
         token_label: 'เครื่องหมาย RSS'
         no_token: 'ไม่มีเครื่องหมาย'
         token_create: 'สร้างเครื่องหมาย'
         token_reset: 'ทำเครื่องหมาย'
-        rss_links: 'ลิงค์ RSS'
-        rss_link:
+        feed_links: 'ลิงค์ RSS'
+        feed_link:
             unread: 'ยังไมได้่อ่าน'
             starred: 'ทำการแสดง'
             archive: 'เอกสาร'
             all: 'ทั้งหมด'
-        rss_limit: 'จำนวนไอเทมที่เก็บ'
+        feed_limit: 'จำนวนไอเทมที่เก็บ'
     form_user:
-        two_factor_description: "การเปิดใช้งาน two factor authentication คือคุณจะต้องได้รับอีเมลกับ code ที่ยังไม่ตรวจสอบในการเชื่อมต่อ"
         name_label: 'ชื่อ'
         email_label: 'อีเมล'
-        twoFactorAuthentication_label: 'Two factor authentication'
-        help_twoFactorAuthentication: "ถ้าคุณเปิด 2FA, ในแต่ละช่วงเวลาที่คุณต้องการลงชื่อเข้าใช wallabag, คุณจะต้องได้รับ code จากอีเมล"
         delete:
             title: ลบบัญชีของฉัน (โซนที่เป็นภัย!)
             description: ถ้าคุณลบบัญชีของคุณIf , รายการทั้งหมดของคุณ, แท็กทั้งหมดของคุณ, หมายเหตุทั้งหมดของคุณและบัญชีของคุณจะถูกลบอย่างถาวร (มันไม่สามารถยกเลิกได้) คุณจะต้องลงชื่อออก
@@ -149,17 +141,16 @@ config:
                 domainName: 'ชื่อโดเมนของรายการ'
             operator_description:
                 label: 'ตัวดำเนินการ'
-                less_than: 'น้อยกว่า...'
-                strictly_less_than: 'เคร่งครัดน้อยกว่า...'
-                greater_than: 'มากกว่า...'
-                strictly_greater_than: 'เคร่งครัดมากกว่า...'
-                equal_to: 'เท่ากับ...'
-                not_equal_to: 'ไม่เท่ากับ...'
+                less_than: 'น้อยกว่า…'
+                strictly_less_than: 'เคร่งครัดน้อยกว่า…'
+                greater_than: 'มากกว่า…'
+                strictly_greater_than: 'เคร่งครัดมากกว่า…'
+                equal_to: 'เท่ากับ…'
+                not_equal_to: 'ไม่เท่ากับ…'
                 or: 'หนึ่งข้อบังคับหรืออื่นๆ'
                 and: 'หนึ่งข้อบังคับและอื่นๆ'
                 matches: 'ทดสอบว่า <i>เรื่อง</i> นี้ตรงกับ <i>การต้นหา</i> (กรณีไม่ทราบ).<br />ตัวอย่าง: <code>หัวข้อที่ตรงกับ "football"</code>'
                 notmatches: 'ทดสอบว่า <i>เรื่อง</i> นี้ไม่ตรงกับ <i>การต้นหา</i> (กรณีไม่ทราบ).<br />ตัวอย่าง: <code>หัวข้อทีไม่ตรงกับ "football"</code>'
-
 entry:
     default_title: 'หัวข้อรายการ'
     page_titles:
@@ -236,7 +227,7 @@ entry:
         published_by: 'ประกาศโดย'
     new:
         page_title: 'บันทึกรายการใหม่'
-        placeholder: 'http://website.com'
+        placeholder: 'https://website.th'
         form_new:
             url_label: Url
     search:
@@ -251,7 +242,6 @@ entry:
     confirm:
         delete: "คุณแน่ใจหรือไม่ว่าคุณต้องการลบบทความนี้?"
         delete_tag: "คุณแน่ใจหรือไม่ว่าคุณต้องการลบแท็กจากบทความนี้?"
-
 about:
     page_title: 'เกี่ยวกับ'
     top_menu:
@@ -282,7 +272,6 @@ about:
         description: 'ที่นี้เป็นรายการของไลบรารี่ของบุคคลนอกจะใช้ใน wallabag (กับการอนุญาตของพวกเขา):'
         package: 'แพ็กเกจ'
         license: 'การอนุญาต'
-
 howto:
     page_title: 'อย่างไร'
     tab_menu:
@@ -334,7 +323,6 @@ howto:
         hide_form: ซ่อนในปัจุบันจาก (ค้นหา หรือ ลิงค์ใหม่)
         arrows_navigation: นำไปที่บทความ
         open_article: แสดงตัวเลือกรายการ
-
 quickstart:
     page_title: 'เริ่มแบบด่วน'
     more: 'มากกว่านี้…'
@@ -346,7 +334,7 @@ quickstart:
         title: 'กำหนดค่าแอพพลิเคชั่น'
         description: 'ภายใน order จะมี application suit ของคุณ, จะมองหาองค์ประกอบของ wallabag'
         language: 'เปลี่ยนภาษาและออกแบบ'
-        rss: 'เปิดใช้ RSS'
+        feed: 'เปิดใช้ RSS'
         tagging_rules: 'เขียนข้อบังคับการแท็กอัตโนมัติของบทความของคุณ'
     admin:
         title: 'ผู้ดูแลระบบ'
@@ -388,7 +376,6 @@ quickstart:
         github: 'บน GitHub'
         email: 'โดยอีเมล'
         gitter: 'บน Gitter'
-
 tag:
     page_title: 'แท็ก'
     list:
@@ -397,10 +384,8 @@ tag:
     new:
         add: 'เพิ่ม'
         placeholder: 'คุณสามารถเพิ่มได้หลายแท็ก, จากการแบ่งโดย comma'
-
 export:
     footer_template: '<div style="text-align:center;"><p>ผลิตโดย wallabag กับ %method%</p><p>ให้ทำการเปิด <a href="https://github.com/wallabag/wallabag/issues">ฉบับนี้</a> ถ้าคุณมีข้อบกพร่องif you have trouble with the display of this E-Book on your device.</p></div>'
-
 import:
     page_title: 'นำข้อมูลเช้า'
     page_description: 'ยินดีตต้อนรับสู wallabag สำหรับผู้นำเข้าข้อมูล ทำการเลือกการบริการครั้งก่อนของคุณจากสิ่งที่ตุณต้องการโอนย้าย'
@@ -440,7 +425,7 @@ import:
         how_to: "ทำการเลือกไฟล์ bookmark backup และ click ที่ button ข้างใต้ที่จะ import ซึ่ง Note ของกระบวนการนี้อาจใช้เวลานานงจากบทความที่รับมา"
     chrome:
         page_title: 'นำเข้าข้อมูล > Chrome'
-        description: "สำหรับผู้นำเข้าข้อมูลจะ import Chrome bookmarks ทั้งหมดของคุณ ตำแน่งของไฟล์จะขึ้นอยู่กับระบบปฏิบัติการของคุณ : <ul><li>บน Linux, ไปยัง <code>~/.config/chromium/Default/</code> ของ directory</li><li>บน Windows, ควรจะเป็น <code>%LOCALAPPDATA%\\Google\\Chrome\\User Data\\Default</code></li><li>บน OS X, ควรจะเป็น <code>~/Library/Application Support/Google/Chrome/Default/Bookmarks</code></li></ul>Once ครั้งที่คุณได้รับสิ่งนั้น, copy  <code>Bookmarks</code> ไฟล์บางที่ คุณจะหา <em><br>Note สิ่งนี้ถ้าคุณมี Chromium instead ของ Chrome, คุณจะมี paths according ที่ถูกต้อง</em></p>"
+        description: "สำหรับผู้นำเข้าข้อมูลจะ import Chrome bookmarks ทั้งหมดของคุณ ตำแน่งของไฟล์จะขึ้นอยู่กับระบบปฏิบัติการของคุณ : <ul><li>บน Linux, ไปยัง <code>~/.config/chromium/Default/</code> ของ directory</li><li>บน Windows, ควรจะเป็น <code>%LOCALAPPDATA%\\Google\\Chrome\\User Data\\Default</code></li><li>บน OS X, ควรจะเป็น <code>~/Library/Application Support/Google/Chrome/Default/Bookmarks</code></li></ul>Once ครั้งที่คุณได้รับสิ่งนั้น, copy <code>Bookmarks</code> ไฟล์บางที่ คุณจะหา <em><br>Note สิ่งนี้ถ้าคุณมี Chromium instead ของ Chrome, คุณจะมี paths according ที่ถูกต้อง</em></p>"
         how_to: "ทำการเลือกไฟล์ bookmark backu และ click ที่ button ข้างใตที่จะ import ซึ่ง Note ของกระบวนการนี้อาจใช้เวลานานงจากบทความที่รับมา"
     instapaper:
         page_title: นำเข้าข้อมูล > Instapaper'
@@ -450,7 +435,6 @@ import:
         page_title: "นำเข้าข้อมูล > Pinboard"
         description: 'สำหรับผู้นำเข้าข้อมูลจะ import Pinboard articles ทั้งหมดของคุณ ที่หน้า backup (https://pinboard.in/settings/backup), click ที่ "JSON" ในส่วน "Bookmarks" ซึ่งไฟล์ JSON file จะ download (เหมือน "pinboard_export").'
         how_to: 'ทำการเลือก Pinboard export ของคุณและ click ข้างใต้ button ที่ upload และทำการ import'
-
 developer:
     page_title: 'การจัดการลูกข่ายของ API'
     welcome_message: 'ยินดีต้อนรับสู่ wallabag API'
@@ -500,7 +484,6 @@ developer:
             paragraph_7: 'การเรียกนี้จะกลับไปที่รายการทั้งหมดสำหรับผู้ใช้'
             paragraph_8: 'ถ้าคุณต้องการเห็น API endpoint ทั้งหมด, คุณสามารถดูได้ที่ <a href="%link%">ไปที่เอกสาร API ของพวกเรา</a>.'
         back: 'กลับ'
-
 user:
     page_title: การจัดการผู้ใช้
     new_user: สร้างผู้ใช้ใหม่
@@ -521,14 +504,12 @@ user:
         email_label: 'อีเมล'
         enabled_label: 'เปิดใช้งาน'
         last_login_label: 'ลงชื้อเข้าใช้ครั้งสุดท้าย'
-        twofactor_label: Two factor authentication
         save: บันทึก
         delete: ลบ
         delete_confirm: ตุณแน่ใจหรือไม่?
         back_to_list: กลับไปยังรายการ
     search:
         placeholder: กลั่นกรองโดย ชื่อผู้ใช้ หรือ อีเมล
-
 site_credential:
     page_title: ไซต์การจัดการข้อมูลส่วนตัว
     new_site_credential: สร้างข้อมูลส่วนตัว
@@ -542,27 +523,25 @@ site_credential:
         create_new_one: สร้างข้อมูลส่วนตัวใหม่
     form:
         username_label: 'ชื่อผู้ใช้'
-        host_label: 'โฮส'
+        host_label: 'โฮส (subdomain.example.org, .example.org, etc.)'
         password_label: 'รหัสผ่าน'
         save: บันทึก
         delete: ลบ
         delete_confirm: คุณแน่ใจหรือไม่?
         back_to_list: กลับไปยังรายการ
-
 error:
     page_title: ข้อผิดพลาดที่เกิดขึ้น
-
 flashes:
     config:
         notice:
             config_saved: 'กำหนดการบันทึก'
             password_updated: 'อัปเดตรหัสผ่าน'
-            password_not_updated_demo: "In demonstration mode, you can't change password for this user."
+            password_not_updated_demo: ""
             user_updated: 'อัปเดตข้อมูล'
-            rss_updated: 'อัปเดตข้อมูล RSS'
+            feed_updated: 'อัปเดตข้อมูล RSS'
             tagging_rules_updated: 'อัปเดตการแท็กข้อบังคับ'
             tagging_rules_deleted: 'การลบข้อบังคับของแท็ก'
-            rss_token_updated: 'อัปเดตเครื่องหมาย RSS '
+            feed_token_updated: 'อัปเดตเครื่องหมาย RSS'
             annotations_reset: รีเซ็ตหมายเหตุ
             tags_reset: รีเซ็ตแท็ก
             entries_reset: รีเซ็ตรายการ

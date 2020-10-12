@@ -17,7 +17,10 @@ class RedirectTest extends TestCase
     /** @var Redirect */
     private $redirect;
 
-    public function setUp()
+    /** @var UsernamePasswordToken */
+    private $token;
+
+    public function setUp(): void
     {
         $this->routerMock = $this->getMockBuilder('Symfony\Component\Routing\Router')
             ->disableOriginalConstructor()
@@ -39,7 +42,7 @@ class RedirectTest extends TestCase
         $config = new Config($user);
         $config->setTheme('material');
         $config->setItemsPerPage(30);
-        $config->setReadingSpeed(1);
+        $config->setReadingSpeed(200);
         $config->setLanguage('en');
         $config->setPocketConsumerKey('xxxxx');
         $config->setActionMarkAsRead(Config::REDIRECT_TO_CURRENT_PAGE);

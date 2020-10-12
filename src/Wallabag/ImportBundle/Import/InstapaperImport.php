@@ -72,14 +72,13 @@ class InstapaperImport extends AbstractImport
             // BUT it can also be the status (since status = folder in Instapaper)
             // and we don't want archive, unread & starred to become a tag
             $tags = null;
-            if (false === in_array($data[3], ['Archive', 'Unread', 'Starred'], true)) {
+            if (false === \in_array($data[3], ['Archive', 'Unread', 'Starred'], true)) {
                 $tags = [$data[3]];
             }
 
             $entries[] = [
                 'url' => $data[0],
                 'title' => $data[1],
-                'status' => $data[3],
                 'is_archived' => 'Archive' === $data[3] || 'Starred' === $data[3],
                 'is_starred' => 'Starred' === $data[3],
                 'html' => false,
@@ -94,6 +93,10 @@ class InstapaperImport extends AbstractImport
             return false;
         }
 
+        // most recent articles are first, which means we should create them at the end so they will show up first
+        // as Instapaper doesn't export the creation date of the article
+        $entries = array_reverse($entries);
+
         if ($this->producer) {
             $this->parseEntriesForProducer($entries);
 
@@ -101,6 +104,18 @@ class InstapaperImport extends AbstractImport
         }
 
         $this->parseEntries($entries);
+
+        return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function validateEntry(array $importedEntry)
+    {
+        if (empty($importedEntry['url'])) {
+            return false;
+        }
 
         return true;
     }
@@ -135,7 +150,7 @@ class InstapaperImport extends AbstractImport
             );
         }
 
-        $entry->setArchived($importedEntry['is_archived']);
+        $entry->updateArchived($importedEntry['is_archived']);
         $entry->setStarred($importedEntry['is_starred']);
 
         $this->em->persist($entry);

@@ -2,29 +2,14 @@
 
 namespace Application\Migrations;
 
-use Doctrine\DBAL\Migrations\AbstractMigration;
 use Doctrine\DBAL\Schema\Schema;
-use Symfony\Component\DependencyInjection\ContainerAwareInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Wallabag\CoreBundle\Doctrine\WallabagMigration;
 
 /**
  * Added the internal setting to share articles to unmark.it.
  */
-class Version20161117071626 extends AbstractMigration implements ContainerAwareInterface
+class Version20161117071626 extends WallabagMigration
 {
-    /**
-     * @var ContainerInterface
-     */
-    private $container;
-
-    public function setContainer(ContainerInterface $container = null)
-    {
-        $this->container = $container;
-    }
-
-    /**
-     * @param Schema $schema
-     */
     public function up(Schema $schema)
     {
         $share = $this->container
@@ -48,17 +33,9 @@ class Version20161117071626 extends AbstractMigration implements ContainerAwareI
         $this->skipIf(false !== $share && false !== $unmark, 'It seems that you already played this migration.');
     }
 
-    /**
-     * @param Schema $schema
-     */
     public function down(Schema $schema)
     {
         $this->addSql('DELETE FROM ' . $this->getTable('craue_config_setting') . " WHERE name = 'share_unmark';");
         $this->addSql('DELETE FROM ' . $this->getTable('craue_config_setting') . " WHERE name = 'unmark_url';");
-    }
-
-    private function getTable($tableName)
-    {
-        return $this->container->getParameter('database_table_prefix') . $tableName;
     }
 }

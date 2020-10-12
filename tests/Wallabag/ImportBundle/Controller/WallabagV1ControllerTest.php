@@ -81,7 +81,7 @@ class WallabagV1ControllerTest extends WallabagCoreTestCase
         $crawler = $client->followRedirect();
 
         $this->assertGreaterThan(1, $body = $crawler->filter('body')->extract(['_text']));
-        $this->assertContains('flashes.import.notice.summary', $body[0]);
+        $this->assertStringContainsString('flashes.import.notice.summary', $body[0]);
 
         $this->assertNotEmpty($client->getContainer()->get('wallabag_core.redis.client')->lpop('wallabag.import.wallabag_v1'));
 
@@ -117,17 +117,17 @@ class WallabagV1ControllerTest extends WallabagCoreTestCase
             );
 
         $this->assertGreaterThan(1, $body = $crawler->filter('body')->extract(['_text']));
-        $this->assertContains('flashes.import.notice.summary', $body[0]);
+        $this->assertStringContainsString('flashes.import.notice.summary', $body[0]);
 
         $this->assertInstanceOf('Wallabag\CoreBundle\Entity\Entry', $content);
         $this->assertEmpty($content->getMimetype(), 'Mimetype for http://www.framablog.org is empty');
-        $this->assertEmpty($content->getPreviewPicture(), 'Preview picture for http://www.framablog.org is empty');
+        $this->assertSame($content->getPreviewPicture(), 'http://www.framablog.org/public/_img/framablog/wallaby_baby.jpg');
         $this->assertEmpty($content->getLanguage(), 'Language for http://www.framablog.org is empty');
 
         $tags = $content->getTags();
         $this->assertContains('foot', $tags, 'It includes the "foot" tag');
         $this->assertContains('framabag', $tags, 'It includes the "framabag" tag');
-        $this->assertSame(2, count($tags));
+        $this->assertCount(2, $tags);
 
         $this->assertInstanceOf(\DateTime::class, $content->getCreatedAt());
     }
@@ -176,7 +176,7 @@ class WallabagV1ControllerTest extends WallabagCoreTestCase
         $this->assertTrue($content2->isArchived());
 
         $this->assertGreaterThan(1, $body = $crawler->filter('body')->extract(['_text']));
-        $this->assertContains('flashes.import.notice.summary', $body[0]);
+        $this->assertStringContainsString('flashes.import.notice.summary', $body[0]);
     }
 
     public function testImportWallabagWithEmptyFile()
@@ -200,6 +200,6 @@ class WallabagV1ControllerTest extends WallabagCoreTestCase
         $crawler = $client->followRedirect();
 
         $this->assertGreaterThan(1, $body = $crawler->filter('body')->extract(['_text']));
-        $this->assertContains('flashes.import.notice.failed', $body[0]);
+        $this->assertStringContainsString('flashes.import.notice.failed', $body[0]);
     }
 }

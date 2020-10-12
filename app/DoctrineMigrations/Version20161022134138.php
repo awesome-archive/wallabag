@@ -2,34 +2,19 @@
 
 namespace Application\Migrations;
 
-use Doctrine\DBAL\Migrations\AbstractMigration;
 use Doctrine\DBAL\Schema\Schema;
-use Symfony\Component\DependencyInjection\ContainerAwareInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Wallabag\CoreBundle\Doctrine\WallabagMigration;
 
 /**
  * Converted database to utf8mb4 encoding (for MySQL only).
  */
-class Version20161022134138 extends AbstractMigration implements ContainerAwareInterface
+class Version20161022134138 extends WallabagMigration
 {
-    /**
-     * @var ContainerInterface
-     */
-    private $container;
-
-    public function setContainer(ContainerInterface $container = null)
-    {
-        $this->container = $container;
-    }
-
-    /**
-     * @param Schema $schema
-     */
     public function up(Schema $schema)
     {
         $this->skipIf('mysql' !== $this->connection->getDatabasePlatform()->getName(), 'This migration only apply to MySQL');
 
-        $this->addSql('ALTER DATABASE ' . $this->connection->getParams()['dbname'] . ' CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci;');
+        $this->addSql('ALTER DATABASE `' . $this->connection->getParams()['dbname'] . '` CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci;');
 
         // convert field length for utf8mb4
         // http://stackoverflow.com/a/31474509/569101
@@ -53,14 +38,11 @@ class Version20161022134138 extends AbstractMigration implements ContainerAwareI
         $this->addSql('ALTER TABLE ' . $this->getTable('user') . ' CHANGE `name` `name` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;');
     }
 
-    /**
-     * @param Schema $schema
-     */
     public function down(Schema $schema)
     {
         $this->skipIf('mysql' !== $this->connection->getDatabasePlatform()->getName(), 'This migration only apply to MySQL');
 
-        $this->addSql('ALTER DATABASE ' . $this->connection->getParams()['dbname'] . ' CHARACTER SET = utf8 COLLATE = utf8_unicode_ci;');
+        $this->addSql('ALTER DATABASE `' . $this->connection->getParams()['dbname'] . '` CHARACTER SET = utf8 COLLATE = utf8_unicode_ci;');
 
         $this->addSql('ALTER TABLE ' . $this->getTable('annotation') . ' CONVERT TO CHARACTER SET utf8 COLLATE utf8_unicode_ci;');
         $this->addSql('ALTER TABLE ' . $this->getTable('entry') . ' CONVERT TO CHARACTER SET utf8 COLLATE utf8_unicode_ci;');
@@ -76,10 +58,5 @@ class Version20161022134138 extends AbstractMigration implements ContainerAwareI
         $this->addSql('ALTER TABLE ' . $this->getTable('tag') . ' CHANGE `label` `label` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci;');
 
         $this->addSql('ALTER TABLE ' . $this->getTable('user') . ' CHANGE `name` `name` longtext CHARACTER SET utf8 COLLATE utf8_unicode_ci;');
-    }
-
-    private function getTable($tableName)
-    {
-        return $this->container->getParameter('database_table_prefix') . $tableName;
     }
 }

@@ -4,6 +4,9 @@ import $ from 'jquery';
 /* Annotations */
 import annotator from 'annotator';
 
+import ClipboardJS from 'clipboard';
+import 'mathjax/es5/tex-svg';
+
 /* Fonts */
 import 'material-design-icons-iconfont/dist/material-design-icons.css';
 import 'lato-font/css/lato-font.css';
@@ -13,8 +16,10 @@ import './global.scss';
 import './js/shortcuts/entry';
 import './js/shortcuts/main';
 
-import { savePercent, retrievePercent } from './js/tools';
+/* Hightlight */
+import './js/highlight';
 
+import { savePercent, retrievePercent } from './js/tools';
 
 /* ==========================================================================
  Annotations & Remember position
@@ -65,7 +70,50 @@ $(document).ready(() => {
     retrievePercent(x.entryId);
 
     $(window).resize(() => {
-      retrievePercent(x.entryId);
+      retrievePercent(x.entryId, true);
     });
   }
+
+  document.querySelectorAll('[data-handler=tag-rename]').forEach((item) => {
+    const current = item;
+    current.wallabag_edit_mode = false;
+    current.onclick = (event) => {
+      const target = event.currentTarget;
+
+      if (target.wallabag_edit_mode === false) {
+        $(target.parentNode.querySelector('[data-handle=tag-link]')).addClass('hidden');
+        $(target.parentNode.querySelector('[data-handle=tag-rename-form]')).removeClass('hidden');
+        target.parentNode.querySelector('[data-handle=tag-rename-form] input').focus();
+        target.querySelector('.material-icons').innerHTML = 'done';
+
+        target.wallabag_edit_mode = true;
+      } else {
+        target.parentNode.querySelector('[data-handle=tag-rename-form]').submit();
+      }
+    };
+  });
+
+  // mimic radio button because emailTwoFactor is a boolean
+  $('#update_user_googleTwoFactor').on('change', () => {
+    $('#update_user_emailTwoFactor').prop('checked', false);
+  });
+
+  $('#update_user_emailTwoFactor').on('change', () => {
+    $('#update_user_googleTwoFactor').prop('checked', false);
+  });
+
+  // same mimic for super admin
+  $('#user_googleTwoFactor').on('change', () => {
+    $('#user_emailTwoFactor').prop('checked', false);
+  });
+
+  $('#user_emailTwoFactor').on('change', () => {
+    $('#user_googleTwoFactor').prop('checked', false);
+  });
+
+  // handle copy to clipboard for developer stuff
+  const clipboard = new ClipboardJS('.btn');
+  clipboard.on('success', (e) => {
+    e.clearSelection();
+  });
 });

@@ -2,9 +2,9 @@
 
 namespace Wallabag\ImportBundle\Controller;
 
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
 use Wallabag\ImportBundle\Form\Type\UploadImportType;
 
 class ReadabilityController extends Controller
@@ -31,7 +31,7 @@ class ReadabilityController extends Controller
             $markAsRead = $form->get('mark_as_read')->getData();
             $name = 'readability_' . $this->getUser()->getId() . '.json';
 
-            if (null !== $file && in_array($file->getClientMimeType(), $this->getParameter('wallabag_import.allow_mimetypes'), true) && $file->move($this->getParameter('wallabag_import.resource_dir'), $name)) {
+            if (null !== $file && \in_array($file->getClientMimeType(), $this->getParameter('wallabag_import.allow_mimetypes'), true) && $file->move($this->getParameter('wallabag_import.resource_dir'), $name)) {
                 $res = $readability
                     ->setFilepath($this->getParameter('wallabag_import.resource_dir') . '/' . $name)
                     ->setMarkAsRead($markAsRead)

@@ -20,10 +20,9 @@ class PreparePagerForEntries
     }
 
     /**
-     * @param AdapterInterface $adapter
-     * @param User             $user    If user isn't logged in, we can force it (like for rss)
+     * @param User $user If user isn't logged in, we can force it (like for feed)
      *
-     * @return null|Pagerfanta
+     * @return Pagerfanta|null
      */
     public function prepare(AdapterInterface $adapter, User $user = null)
     {
@@ -31,7 +30,7 @@ class PreparePagerForEntries
             $user = $this->tokenStorage->getToken() ? $this->tokenStorage->getToken()->getUser() : null;
         }
 
-        if (null === $user || !is_object($user)) {
+        if (null === $user || !\is_object($user)) {
             return;
         }
 
