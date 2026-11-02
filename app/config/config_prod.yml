@@ -1,9 +1,8 @@
 imports:
     - { resource: config.yml }
 
-framework:
-    assets:
-        # json_manifest_path: '%kernel.project_dir%/web/bundles/wallabagcore/manifest.json'
+parameters:
+    wallabag.sentry_dsn: ''
 
 #doctrine:
 #    orm:
@@ -20,6 +19,9 @@ monolog:
         nested:
             type: stream
             path: "%kernel.logs_dir%/%kernel.environment%.log"
-            level: debug
+            level: "%env(WALLABAG_LOG_LEVEL)%"
         console:
             type: console
+
+sentry:
+    dsn: "%env(default:wallabag.sentry_dsn:SENTRY_DSN)%"
